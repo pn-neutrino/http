@@ -1,0 +1,31 @@
+{
+  "name": "neutrino/http",
+  "description": "The Neutrino Http package.",
+  "keywords": ["neutrino", "nucleon", "http", "curl", "stream"],
+  "license": "MIT",
+  "homepage": "https://phalcon-nucleon.github.io",
+  "support": {
+    "issues": "https://github.com/pn-neutrino/http/issues",
+    "source": "https://github.com/pn-neutrino/http"
+  },
+  "authors": [
+    {
+      "name": "Ark4ne (Guillaume Allegret)",
+      "email": "gui.allegret@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6",
+    "ext-curl": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8",
+    "satooshi/php-coveralls": "~1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Neutrino\\": "src/"
+    }
+  },
+  "minimum-stability": "dev"
+}

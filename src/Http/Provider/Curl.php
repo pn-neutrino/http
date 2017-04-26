@@ -1,0 +1,225 @@
+<?php
+
+namespace Neutrino\Http\Provider;
+
+use Neutrino\Http\Exception as HttpException;
+use Neutrino\Http\Header;
+use Neutrino\Http\Method;
+use Neutrino\Http\Request;
+use Neutrino\Http\Response;
+
+abstract class Curl extends Request
+{
+    private static $isAvailable;
+
+    private static function checkAvailability()
+    {
+        if (!isset(self::$isAvailable)) {
+            self::$isAvailable = extension_loaded('curl');
+        }
+
+        if (!self::$isAvailable) {
+            throw new \RuntimeException(self::class . ' require curl extension');
+        }
+    }
+
+    /**
+     * Curl constructor.
+     *
+     * @param \Neutrino\Http\Response|null $response
+     * @param \Neutrino\Http\Header|null   $header
+     */
+    public function __construct(Response $response = null, Header $header = null)
+    {
+        self::checkAvailability();
+
+        parent::__construct($response, $header);
+    }
+
+    /**
+     * Definie le timeout de la requete
+     * Applique l'option CURL 'CURLOPT_TIMEOUT'
+     *
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout($timeout)
+    {
+        return $this->addOption(CURLOPT_TIMEOUT, $timeout);
+    }
+
+    /**
+     * Definie le timeout de connexion de la requete
+     * Applique l'option CURL 'CURLOPT_CONNECTTIMEOUT'
+     *
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setConnectTimeout($timeout)
+    {
+        return $this->addOption(CURLOPT_CONNECTTIMEOUT, $timeout);
+    }
+
+    /**
+     * @return \Neutrino\Http\Response
+     * @throws \Exception
+     */
+    protected function makeCall()
+    {
+        try {
+            $ch = curl_init();
+
+            $method = $this->method;
+
+            if ($method === Method::HEAD) {
+                curl_setopt($ch, CURLOPT_NOBODY, true);
+            }
+
+            // Default Options
+            curl_setopt_array($ch,
+                [
+                    CURLOPT_URL             => $this->getUrl(),
+                    CURLOPT_CUSTOMREQUEST   => $method,
+                    CURLOPT_AUTOREFERER     => true,
+                    CURLOPT_FOLLOWLOCATION  => true,
+                    CURLOPT_MAXREDIRS       => 20,
+                    CURLOPT_HEADER          => false,
+                    CURLOPT_PROTOCOLS       => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+                    CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+                    CURLOPT_CONNECTTIMEOUT  => 30,
+                    CURLOPT_TIMEOUT         => 30,
+                    CURLOPT_HEADERFUNCTION  => [$this, 'curlHeaderFunction'],
+                ]);
+
+            curl_setopt_array($ch, $this->options);
+
+            $this->exec($ch);
+
+            $this->curlInfos($ch);
+
+            if ($this->response->errorCode) {
+                throw new HttpException($this->response->errorCode, $this->response->error);
+            }
+
+            return $this->response;
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw new HttpException(null, 0, $e);
+        } finally {
+            if (isset($ch) && is_resource($ch)) {
+                curl_close($ch);
+            }
+        }
+    }
+
+    final public function curlHeaderFunction($ch, $raw)
+    {
+        $content = trim($raw);
+
+        if ($this->response->code === null) {
+            $this->response->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        }
+
+        if (preg_match('%^HTTP/(\d(?:\.\d)?)\s+(\d{3})\s?+(.+)?$%i', $content, $status)) {
+            $this->response->code   = intval($status[2]);
+            $this->response->status = isset($status[3]) ? $status[3] : '';
+        } else {
+            $field = explode(':', $content, 2);
+
+            $this->response->header->set(trim($field[0]), isset($field[1]) ? trim($field[1]) : null);
+        }
+
+        return strlen($raw);
+    }
+
+    final public function curlInfos($ch)
+    {
+        if ($this->response->code === null) {
+            $this->response->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        }
+
+        if (($errno = curl_errno($ch)) !== 0) {
+            $this->response->errorCode = curl_errno($ch);
+            $this->response->error     = curl_error($ch);
+        }
+
+        $this->response->curlInfos = curl_getinfo($ch);
+    }
+
+    /**
+     * Construit les parametres de la requete.
+     * HTTP [POST, PUT, PATCH] : Applique l'option CURL "CURLOPT_POSTFIELDS"
+     * HTTP [...] : Contruit l'url de la requete
+     *
+     * @return $this
+     */
+    protected function buildParams()
+    {
+        if ($this->isPostMethod()) {
+            return $this->addOption(
+                CURLOPT_POSTFIELDS,
+                $this->isJsonRequest() ? json_encode($this->params) : $this->params
+            );
+        } else {
+            return $this->buildUrl();
+        }
+    }
+
+    /**
+     * Construit les cookies de la requete
+     * Applique l'option CURL 'CURLOPT_COOKIE'
+     *
+     * @return $this
+     */
+    protected function buildCookies()
+    {
+        if (!empty($this->cookies)) {
+            return $this->addOption(CURLOPT_COOKIE, $this->getCookies(true));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Construit les headers de la requete.
+     * Applique l'option CURL "CURLOPT_HTTPHEADER"
+     *
+     * @return $this
+     */
+    protected function buildHeaders()
+    {
+        if (!empty($this->header->getHeaders())) {
+            return $this->addOption(CURLOPT_HTTPHEADER, $this->header->build());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Definie le proxy de la requete
+     * Applique les options CURL : CURLOPT_PROXY, CURLOPT_PROXYPORT, CURLOPT_PROXYUSERPWD
+     *
+     * @return $this
+     */
+    protected function buildProxy()
+    {
+        if (isset($this->proxy['host'])) {
+            return $this
+                ->addOption(CURLOPT_PROXY, $this->proxy['host'])
+                ->addOption(CURLOPT_PROXYPORT, $this->proxy['port'])
+                ->addOption(CURLOPT_PROXYUSERPWD, $this->proxy['access']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param resource $ch
+     *
+     * @return $this
+     */
+    abstract protected function exec($ch);
+}
