@@ -15,7 +15,7 @@ before_script:
   - composer dump-autoload
 
 script:
-  - php -S 127.0.0.1:8000 tests/server.php
+  - php -S 127.0.0.1:8000 tests/server.php &
   - mkdir -p build/logs
   - vendor/bin/phpunit --bootstrap ./tests/bootstrap.php --configuration ./phpunit.xml --coverage-clover build/logs/clover.xml
 
