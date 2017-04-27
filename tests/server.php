@@ -1,29 +1,31 @@
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
-use \Neutrino\Http\Uri;
-use \Neutrino\Http\Standard\Method;
-use \Neutrino\Http\Standard\StatusCode;
+use Neutrino\Http\Standard\Method;
+use Neutrino\Http\Standard\StatusCode;
+use Neutrino\Http\Uri;
 
 $uri = new Uri($_SERVER['REQUEST_URI']);
 
 $parts = explode('/', trim($uri->path, '/'));
 
-$httpCode = $parts[0];
+$httpCode    = $parts[0];
 $httpMessage = !empty($parts[1]) ? $parts[1] : StatusCode::message($httpCode);
-$method = $_SERVER['REQUEST_METHOD'];
+$method      = $_SERVER['REQUEST_METHOD'];
 header("HTTP/1.1 $httpCode $httpMessage");
 header("Status-Code: $httpCode $httpMessage");
 header("Request-Method: {$method}");
 
-$headers= [];
-foreach($_SERVER as $key => $value) {
+$headers = [];
+foreach ($_SERVER as $key => $value) {
     if (substr($key, 0, 5) <> 'HTTP_') {
         continue;
     }
-    $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+    $header           = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
     $headers[$header] = $value;
 }
+
+$jsonRequest = isset($headers['Content-Type']) && $headers['Content-Type'] === 'application/json';
 
 switch ($method) {
     case Method::GET:
@@ -32,16 +34,24 @@ switch ($method) {
         $query = $_GET;
         break;
     case Method::POST:
-        $query = $_POST;
+        if ($jsonRequest) {
+            $query = json_decode(file_get_contents("php://input"), true);
+        } else {
+            $query = $_POST;
+        }
         break;
     default:
-        parse_str(urldecode(file_get_contents("php://input")), $query);
+        if ($jsonRequest) {
+            $query = json_decode(file_get_contents("php://input"), true);
+        } else {
+            parse_str(urldecode(file_get_contents("php://input")), $query);
+        }
 }
 
 if (!empty($query)) {
     if (isset($query['stream'])) {
         $output = implode('', range('1', '9')) . PHP_EOL;
-        $loop = 10000;
+        $loop   = 10000;
 
         header('Content-Length: ' . (strlen($output) * $loop));
 
@@ -50,7 +60,9 @@ if (!empty($query)) {
             ob_flush();
             flush();
         }
-    } else {
-        echo json_encode($query);
     }
 }
+
+ksort($headers);
+
+echo json_encode(['header_send' => $headers, 'query' => $query]);
