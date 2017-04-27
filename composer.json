@@ -1,7 +1,23 @@
 {
   "name": "neutrino/http",
   "description": "The Neutrino Http package.",
-  "keywords": ["neutrino", "nucleon", "http", "curl", "stream", "streaming"],
+  "keywords": [
+    "neutrino",
+    "nucleon",
+    "http",
+    "http client",
+    "api",
+    "json",
+    "requests",
+    "rest",
+    "restful",
+    "web service",
+    "xml",
+    "curl",
+    "stream",
+    "stream context",
+    "streaming"
+  ],
   "license": "MIT",
   "homepage": "https://phalcon-nucleon.github.io",
   "support": {
@@ -24,6 +40,11 @@
   "autoload": {
     "psr-4": {
       "Neutrino\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\": "tests/Test"
     }
   },
   "minimum-stability": "dev"
