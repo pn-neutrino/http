@@ -79,7 +79,7 @@ class Curl extends Request
             $this->curlInfos($ch);
 
             if ($this->response->errorCode) {
-                throw new HttpException($this->response->errorCode, $this->response->error);
+                throw new HttpException($this->response->error, $this->response->errorCode);
             }
 
             return $this->response;
@@ -165,10 +165,15 @@ class Curl extends Request
     protected function buildParams()
     {
         if ($this->isPostMethod()) {
-            return $this->setOption(
-                CURLOPT_POSTFIELDS,
-                $this->isJsonRequest() ? json_encode($this->params) : $this->params
-            );
+            if ($this->isJsonRequest()) {
+                return $this
+                    ->setOption(CURLOPT_POSTFIELDS, json_encode($this->params))
+                    ->addHeader('Content-Type', 'application/json');
+            } else {
+                return $this
+                    ->setOption(CURLOPT_POSTFIELDS, http_build_query($this->params))
+                    ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
         } else {
             return $this->buildUrl();
         }
@@ -215,7 +220,7 @@ class Curl extends Request
         if (isset($this->proxy['host'])) {
             $this
                 ->setOption(CURLOPT_PROXY, $this->proxy['host'])
-                ->setOption(CURLOPT_PROXYPORT, isset($this->proxy['port']) ? $this->proxy['port'] : 80);
+                ->setOption(CURLOPT_PROXYPORT, $this->proxy['port']);
 
             if (isset($this->proxy['access'])) {
                 $this->setOption(CURLOPT_PROXYUSERPWD, $this->proxy['access']);
