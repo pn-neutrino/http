@@ -3,6 +3,7 @@
 namespace Neutrino\Http\Provider;
 
 use Neutrino\Http\Exception as HttpException;
+use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Header;
 use Neutrino\Http\Standard\Method;
 use Neutrino\Http\Request;
@@ -19,7 +20,7 @@ abstract class Curl extends Request
         }
 
         if (!self::$isAvailable) {
-            throw new \RuntimeException(self::class . ' require curl extension');
+            throw new ProviderException(self::class . ' require curl extension');
         }
     }
 

@@ -4,6 +4,7 @@ namespace Neutrino\Http\Client\Provider;
 
 use Neutrino\Http\Header;
 use Neutrino\Http\Exception as HttpException;
+use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Request;
 use Neutrino\Http\Response;
 
@@ -22,7 +23,7 @@ class StreamContext extends Request
         }
 
         if (!self::$isAvailable) {
-            throw new \RuntimeException(self::class . ' HTTP or HTTPS stream wrappers not registered.');
+            throw new ProviderException(self::class . ' HTTP or HTTPS stream wrappers not registered.');
         }
     }
 
