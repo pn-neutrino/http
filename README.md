@@ -27,7 +27,6 @@ $response = $curl
   ->call();
   
 $response->code; // HTTP Status Code
-$response->
 ```
 
 ### Curl\Stream
@@ -35,7 +34,7 @@ Curl\Stream allows you to work with large queries, by recovers content part by p
 
 #### How use :
 ```php
-use \Neutrino\Http\Provider\Curl\Stream as HttpCurlStream;
+use \Neutrino\Http\Provider\Curl\Streaming as HttpCurlStream;
 use \Neutrino\Http\Method;
 
 $curl = new HttpCurlStream;
