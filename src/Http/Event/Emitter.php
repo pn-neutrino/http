@@ -8,53 +8,39 @@ class Emitter
     protected $listeners = [];
 
     /**
-     *
-     *
      * @param string            $event
-     * @param callable|\Closure $closure
-     * @param null|string       $name
+     * @param callable $closure
      *
-     * @return $this
+     * @return bool
      */
-    public function attach($event, $closure, $name = null)
+    public function attach($event, $closure)
     {
-        if (is_null($name)) {
-            $this->listeners[$event][] = $closure;
-        } else {
-            $this->listeners[$event][$name] = $closure;
-        }
+        $this->listeners[$event][] = $closure;
 
-        return $this;
+        return true;
     }
 
     /**
-     * @param string      $event
-     * @param null        $closure
-     * @param null|string $name
+     * @param string   $event
+     * @param callable $closure
      *
-     * @return $this
+     * @return bool
      */
-    public function detach($event, $closure = null, $name = null)
+    public function detach($event, $closure)
     {
         if (isset($this->listeners[$event])) {
-            if(!is_null($closure)){
+            if (!is_null($closure)) {
                 $index = array_search($closure, $this->listeners[$event], true);
 
                 if (false !== $index) {
                     unset($this->listeners[$event][$index]);
 
-                    return $this;
+                    return true;
                 }
-            }
-
-            if (is_null($name)) {
-                unset($this->listeners[$event]);
-            } elseif (isset($this->listeners[$event][$name])) {
-                unset($this->listeners[$event][$name]);
             }
         }
 
-        return $this;
+        return false;
     }
 
     /**
@@ -66,37 +52,8 @@ class Emitter
     public function fire($event, array $arguments = [])
     {
         if (isset($this->listeners[$event])) {
-            return $this->emit($this->listeners[$event], $arguments);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $arguments
-     *
-     * @return $this
-     */
-    public function fireAll(array $arguments = [])
-    {
-        foreach ($this->listeners as $events) {
-            $this->emit($events, $arguments);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $events
-     * @param array $arguments
-     *
-     * @return $this
-     */
-    protected function emit(array $events, array $arguments = [])
-    {
-        foreach ($events as $event) {
-            if (call_user_func_array($event, $arguments) === false) {
-                return $this;
+            foreach ($this->listeners[$event] as $event) {
+                call_user_func_array($event, $arguments);
             }
         }
 
