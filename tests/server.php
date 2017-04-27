@@ -9,7 +9,7 @@ $uri = new Uri($_SERVER['REQUEST_URI']);
 
 $parts = explode('/', trim($uri->path, '/'));
 
-$httpCode    = $parts[0];
+$httpCode    = !empty($parts[0]) ? $parts[0] : 200;
 $httpMessage = !empty($parts[1]) ? $parts[1] : StatusCode::message($httpCode);
 $method      = $_SERVER['REQUEST_METHOD'];
 header("HTTP/1.1 $httpCode $httpMessage");
