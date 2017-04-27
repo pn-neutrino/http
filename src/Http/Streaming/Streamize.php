@@ -55,7 +55,11 @@ trait Streamize
 
     private function checkEvent($event)
     {
-        if ($event == Streamable::EVENT_START || $event == Streamable::EVENT_PROGRESS || $event == Streamable::EVENT_FINISH || $event == Streamable::EVENT_FAILURE) {
+        if ($event == Streamable::EVENT_START
+            || $event == Streamable::EVENT_PROGRESS
+            || $event == Streamable::EVENT_FINISH
+            || $event == Streamable::EVENT_FAILURE
+        ) {
             return;
         }
 
