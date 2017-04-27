@@ -1,6 +1,6 @@
 <?php
 
-namespace Neutrino\Http;
+namespace Neutrino\Http\Standard;
 
 final class Method
 {

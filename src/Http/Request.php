@@ -17,9 +17,9 @@ abstract class Request
     /**
      * Url de la requete
      *
-     * @var string
+     * @var Uri
      */
-    protected $url;
+    protected $uri;
 
     /**
      * Parametres de la requete
@@ -80,38 +80,38 @@ abstract class Request
      * Request constructor.
      *
      * @param \Neutrino\Http\Response|null $response
-     * @param \Neutrino\Http\Header|null   $header
+     * @param \Neutrino\Http\Header|null $header
      */
     public function __construct(Response $response = null, Header $header = null)
     {
-        $this->header   = $header === null ? new Header() : $header;
+        $this->header = $header === null ? new Header() : $header;
         $this->response = $response === null ? new Response() : $response;
     }
 
     /**
      * Retour l'url de la requete, construite avec les parametres si la method HTTP n'est pas POST, PUT, PATCH
      *
-     * @return mixed
+     * @return Uri
      */
-    public function getUrl()
+    public function getUri()
     {
         if ($this->isPostMethod()) {
-            return $this->url;
+            return $this->uri;
         }
 
-        return $this->buildUrl()->url;
+        return $this->buildUrl()->uri;
     }
 
     /**
      * Definie l'url de la requete
      *
-     * @param mixed $url
+     * @param string|Uri $uri
      *
      * @return $this
      */
-    public function setUrl($url)
+    public function setUri($uri)
     {
-        $this->url = $url;
+        $this->uri = new Uri($uri);
 
         return $this;
     }
@@ -190,7 +190,7 @@ abstract class Request
      * Definie, ou ajoute, des parametres de la requete
      *
      * @param array $parameters
-     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -208,7 +208,7 @@ abstract class Request
     /**
      * Ajout un parametre à la requete
      *
-     * @param string       $name
+     * @param string $name
      * @param string|array $value
      *
      * @return $this
@@ -243,50 +243,16 @@ abstract class Request
      */
     public function extendUrl(array $parameters = [])
     {
-        $parts = parse_url($this->url);
+        $this->uri->extendQuery($parameters);
 
-        if (!empty($parts['query'])) {
-            parse_str($parts['query'], $urlQuery);
-
-            $query = array_merge($urlQuery, $parameters);
-        }
-
-        $url = '';
-        if (!empty($parts['scheme'])) {
-            $url .= $parts['scheme'] . ':';
-            if (!empty($parts['host'])) {
-                $url .= '//';
-                if (!empty($parts['user'])) {
-                    $url .= $parts['user'];
-                    if (!empty($parts['pass'])) {
-                        $url .= ':' . $parts['pass'];
-                    }
-                    $url .= '@';
-                }
-                $url .= $parts['host'];
-            }
-        }
-        if (!empty($parts['port'])) {
-            $url .= ':' . $parts['port'];
-        }
-        if (!empty($parts['path'])) {
-            $url .= $parts['path'];
-        }
-        if (!empty($query)) {
-            $url .= '?' . http_build_query($query);
-        }
-        if (!empty($parts['fragment'])) {
-            $url .= '#' . $parts['fragment'];
-        }
-
-        return $this->setUrl($url);
+        return $this;
     }
 
     /**
      * Definie, ou ajoute, des headers à la requete
      *
      * @param array $headers
-     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -334,8 +300,8 @@ abstract class Request
     public function setProxy($host, $port, $access)
     {
         $this->proxy = [
-            'host'   => $host,
-            'port'   => $port,
+            'host' => $host,
+            'port' => $port,
             'access' => $access,
         ];
 
@@ -402,7 +368,7 @@ abstract class Request
      * Ajoute un cookie a la requete
      *
      * @param null|string $key
-     * @param string      $value
+     * @param string $value
      *
      * @return $this
      * @throws \InvalidArgumentException
@@ -448,7 +414,7 @@ abstract class Request
      * Definie, ou ajoute, des options
      *
      * @param array $options
-     * @param bool  $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
      *
      * @return $this
      */
@@ -471,7 +437,7 @@ abstract class Request
      *
      * @return $this
      */
-    public function addOption($name, $value)
+    public function setOption($name, $value)
     {
         $this->options[$name] = $value;
 

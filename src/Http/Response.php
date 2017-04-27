@@ -12,9 +12,6 @@ class Response
     /** @var int|null */
     public $code;
 
-    /** @var string */
-    public $status;
-
     /** @var Header */
     public $header;
 
@@ -44,7 +41,7 @@ class Response
     }
 
     /**
-     * Renvoie si la reponse est valide
+     * Check if the HTTP Response is valid (2xx)
      *
      * @return bool
      */
@@ -54,7 +51,7 @@ class Response
     }
 
     /**
-     * Renvoie si la reponse est en erreur
+     * Check if an HTTP error append
      *
      * @return bool
      */
@@ -64,7 +61,7 @@ class Response
     }
 
     /**
-     * Renvoie une erreur CURL est survenue
+     * Check if an CURL error append
      *
      * @return bool
      */
@@ -76,7 +73,7 @@ class Response
     /**
      * @param Parserize|string $parser
      *
-     * @return mixed
+     * @return $this
      * @throws \RuntimeException
      */
     public function parse($parser)
@@ -86,7 +83,9 @@ class Response
         }
 
         if ($parser instanceof Parserize) {
-            return $this->data = $parser->parse($this->body);
+            $this->data = $parser->parse($this->body);
+
+            return $this;
         }
 
         throw new \RuntimeException(__METHOD__ . ' $parserize must implement ' . Parserize::class);

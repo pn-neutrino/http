@@ -13,7 +13,7 @@ Standard curl request.
 
 #### How use :
 ```php
-use \Neutrino\Http\Provider\Curl\Standard as HttpCurl;
+use \Neutrino\Http\Provider\Curl as HttpCurl;
 use \Neutrino\Http\Method;
 
 $curl = new HttpCurl;
@@ -109,13 +109,13 @@ $response->curlInfos; // All CURL Information
 use \Neutrino\Http\Parser;
 
 // Json Body => Object
-$jsonObject = $response->parse(Parser\Json::class);
+$jsonObject = $response->parse(Parser\Json::class)->data;
 
 // Xml Body => SimpleXMLElement
-$xmlElement = $response->parse(Parser\Xml::class);
+$xmlElement = $response->parse(Parser\Xml::class)->data;
 
 // Xml Body => array
-$xmlArray = $response->parse(Parser\XmlArray::class);
+$xmlArray = $response->parse(Parser\XmlArray::class)->data;
 
 // Other exemple : (PHP7)
 $response->parse(new class implements Parser\Parserize
