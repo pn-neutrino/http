@@ -7,6 +7,7 @@ use Neutrino\Http\Header;
 use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Request;
 use Neutrino\Http\Response;
+use Neutrino\Http\Standard\Method;
 use Neutrino\Http\Uri;
 
 class StreamContext extends Request
@@ -83,17 +84,32 @@ class StreamContext extends Request
         stream_context_set_option($context, ['http' => array_merge([
             'follow_location' => 1,
             'max_redirects'   => 20,
-            'timeout'         => 30
-        ], $this->options)]);
+            'timeout'         => 30,
+            'ignore_errors'   => true,
+        ], $this->options, ['method' => $this->method])]);
     }
 
     protected function streamContextExec($context)
     {
-        $content = file_get_contents($this->uri->build(), false, $context);
+        if ($this->method !== Method::HEAD) {
+            $content = file_get_contents($this->uri->build(), false, $context);
 
-        $this->streamContextParseHeader($http_response_header);
+            $this->streamContextParseHeader($http_response_header);
 
-        return $content;
+            return $content;
+        }
+
+        try {
+            $handler = fopen($this->uri->build(), 'r', null, $context);
+
+            $this->streamContextParseHeader($http_response_header);
+
+            return '';
+        } finally {
+            if (isset($handler) && is_resource($handler)) {
+                fclose($handler);
+            }
+        }
     }
 
     protected function streamContextParseHeader($headers)
