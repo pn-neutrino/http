@@ -292,12 +292,12 @@ abstract class Request
      * Definie les informations de proxy
      *
      * @param string $host
-     * @param string $port
+     * @param int    $port
      * @param string $access
      *
      * @return $this
      */
-    public function setProxy($host, $port, $access)
+    public function setProxy($host, $port = 8080, $access = null)
     {
         $this->proxy = [
             'host' => $host,
