@@ -57,7 +57,7 @@ class Response
      */
     public function isFail()
     {
-        return $this->code < 200 && $this->code >= 300;
+        return $this->code < 200 || $this->code >= 300;
     }
 
     /**
@@ -67,7 +67,7 @@ class Response
      */
     public function isError()
     {
-        return $this->errorCode !== null || $this->errorCode !== 0;
+        return isset($this->errorCode) && ($this->errorCode !== null || $this->errorCode !== 0);
     }
 
     /**
@@ -88,6 +88,6 @@ class Response
             return $this;
         }
 
-        throw new \RuntimeException(__METHOD__ . ' $parserize must implement ' . Parserize::class);
+        throw new \RuntimeException(__METHOD__ . ': $parserize must implement ' . Parserize::class);
     }
 }
