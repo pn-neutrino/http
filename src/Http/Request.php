@@ -80,11 +80,11 @@ abstract class Request
      * Request constructor.
      *
      * @param \Neutrino\Http\Response|null $response
-     * @param \Neutrino\Http\Header|null $header
+     * @param \Neutrino\Http\Header|null   $header
      */
     public function __construct(Response $response = null, Header $header = null)
     {
-        $this->header = $header === null ? new Header() : $header;
+        $this->header   = $header === null ? new Header() : $header;
         $this->response = $response === null ? new Response() : $response;
     }
 
@@ -190,7 +190,7 @@ abstract class Request
      * Definie, ou ajoute, des parametres de la requete
      *
      * @param array $parameters
-     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -208,7 +208,7 @@ abstract class Request
     /**
      * Ajout un parametre à la requete
      *
-     * @param string $name
+     * @param string       $name
      * @param string|array $value
      *
      * @return $this
@@ -243,7 +243,9 @@ abstract class Request
      */
     public function extendUrl(array $parameters = [])
     {
-        $this->uri->extendQuery($parameters);
+        if (!empty($parameters)) {
+            $this->uri->extendQuery($parameters);
+        }
 
         return $this;
     }
@@ -252,7 +254,7 @@ abstract class Request
      * Definie, ou ajoute, des headers à la requete
      *
      * @param array $headers
-     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -300,8 +302,8 @@ abstract class Request
     public function setProxy($host, $port = 8080, $access = null)
     {
         $this->proxy = [
-            'host' => $host,
-            'port' => $port,
+            'host'   => $host,
+            'port'   => $port,
             'access' => $access,
         ];
 
@@ -365,26 +367,6 @@ abstract class Request
     }
 
     /**
-     * Ajoute un cookie a la requete
-     *
-     * @param null|string $key
-     * @param string $value
-     *
-     * @return $this
-     * @throws \InvalidArgumentException
-     */
-    public function addCookie($key, $value)
-    {
-        if (is_null($key)) {
-            $this->cookies[] = $value;
-        } else {
-            $this->cookies[$key] = $value;
-        }
-
-        return $this;
-    }
-
-    /**
      * Retourne les cookies
      *
      * @param bool $format Retourne les cookies formatés
@@ -401,6 +383,43 @@ abstract class Request
     }
 
     /**
+     * @param array $cookies
+     * @param bool  $merge Est-ce que l'on ajout les $cookies aux $cookies existant, ou les ecrases
+     *
+     * @return $this
+     */
+    public function setCookies($cookies, $merge = false)
+    {
+        if ($merge) {
+            $this->cookies = array_merge($this->cookies, $cookies);
+        } else {
+            $this->cookies = $cookies;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Ajoute un cookie a la requete
+     *
+     * @param null|string $key
+     * @param string      $value
+     *
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function addCookie($key, $value)
+    {
+        if (is_null($key)) {
+            $this->cookies[] = $value;
+        } else {
+            $this->cookies[$key] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * Retourne les options
      *
      * @return array
@@ -414,7 +433,7 @@ abstract class Request
      * Definie, ou ajoute, des options
      *
      * @param array $options
-     * @param bool $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
+     * @param bool  $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
      *
      * @return $this
      */
