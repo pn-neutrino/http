@@ -14,7 +14,6 @@ interface Streamable
     const EVENT_START    = 'start';
     const EVENT_PROGRESS = 'progress';
     const EVENT_FINISH   = 'finish';
-    const EVENT_FAILURE  = 'failure';
 
     public function on($event, $callback);
 

@@ -27,13 +27,9 @@ class Streaming extends StreamContext implements Streamable
                 $emitter->fire(self::EVENT_PROGRESS, [$this, stream_get_contents($handler, $buffer)]);
             }
 
-            $emitter->fire(self::EVENT_FAILURE, [$this]);
+            $emitter->fire(self::EVENT_FINISH, [$this]);
 
             return true;
-        } catch (\Exception $e) {
-            $emitter->fire(self::EVENT_FAILURE, [$this, $e]);
-
-            throw $e;
         } finally {
             if (isset($handler) && is_resource($handler)) {
                 fclose($handler);

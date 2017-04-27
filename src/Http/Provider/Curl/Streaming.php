@@ -13,29 +13,6 @@ class Streaming extends Curl implements Streamable
     /** @var bool */
     protected $hasStarted = false;
 
-    /** @var bool */
-    protected $processEvenFails = false;
-
-    /**
-     * @return bool
-     */
-    public function isProcessEvenFails()
-    {
-        return $this->processEvenFails;
-    }
-
-    /**
-     * @param bool $processEvenFails
-     *
-     * @return Streaming
-     */
-    public function setProcessEvenFails($processEvenFails)
-    {
-        $this->processEvenFails = $processEvenFails;
-
-        return $this;
-    }
-
     /**
      * Curl WRITEFUNCTION handler
      *
@@ -49,18 +26,12 @@ class Streaming extends Curl implements Streamable
         if (!$this->hasStarted) {
             $this->hasStarted = true;
 
-            if ($this->response->isOk() || $this->processEvenFails) {
-                $this->emitter->fire(self::EVENT_START, [$this]);
-            }
+            $this->emitter->fire(self::EVENT_START, [$this]);
         }
 
         $length = strlen($content);
 
-        if ($this->response->isOk() || $this->processEvenFails) {
-            $this->emitter->fire(self::EVENT_PROGRESS, [$this, $content]);
-        } else {
-            $this->response->body .= $content;
-        }
+        $this->emitter->fire(self::EVENT_PROGRESS, [$this, $content]);
 
         return $length;
     }
@@ -69,11 +40,7 @@ class Streaming extends Curl implements Streamable
     {
         parent::call();
 
-        if ($this->response->isOk()) {
-            $this->emitter->fire(self::EVENT_FINISH, [$this]);
-        } else {
-            $this->emitter->fire(self::EVENT_FAILURE, [$this]);
-        }
+        $this->emitter->fire(self::EVENT_FINISH, [$this]);
     }
 
     protected function curlOptions($ch)
@@ -86,7 +53,7 @@ class Streaming extends Curl implements Streamable
                 CURLOPT_WRITEFUNCTION  => [$this, 'curlWriteFunction'],
             ]);
 
-        if(isset($this->bufferSize)){
+        if (isset($this->bufferSize)) {
             curl_setopt($ch, CURLOPT_BUFFERSIZE, $this->bufferSize);
         }
     }
