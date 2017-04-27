@@ -38,7 +38,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(1, $header);
 
         $this->assertEquals($header, $header->setHeaders([
-            'test' => 'value',
+            'test'   => 'value',
             'test_2' => 'value_2'
         ], true));
 
@@ -48,7 +48,7 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(3, $header);
 
         $this->assertEquals($header, $header->setHeaders([
-            'test' => 'value',
+            'test'   => 'value',
             'test_2' => 'value_2'
         ]));
 
@@ -96,13 +96,15 @@ class HeaderTest extends \PHPUnit\Framework\TestCase
                 'X-Powered-By'   => 'PHP/7.0.10',
                 'Content-Length' => '5524',
                 'Content-Type'   => 'text/html; charset=UTF-8',
-            ], "HTTP/1.1 200 OK
-Date: Thu, 27 Apr 2017 13:42:19 GMT
-Server: Apache/2.4.23 (Win64) PHP/7.0.10
-X-Powered-By: PHP/7.0.10
-Content-Length: 5524
-Content-Type: text/html; charset=UTF-8
-"]
+            ], implode("\r\n", [
+                "HTTP/1.1 200 OK",
+                'Date: Thu, 27 Apr 2017 13:42:19 GMT',
+                'Server: Apache/2.4.23 (Win64) PHP/7.0.10',
+                'X-Powered-By: PHP/7.0.10',
+                'Content-Length: 5524',
+                'Content-Type: text/html; charset=UTF-8'
+            ]),
+            ]
         ];
     }
 
