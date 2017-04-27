@@ -1,6 +1,6 @@
 <?php
 
-namespace Neutrino\Http\Client\Provider;
+namespace Neutrino\Http\Provider;
 
 use Neutrino\Http\Header;
 use Neutrino\Http\Exception as HttpException;
@@ -49,8 +49,11 @@ class StreamContext extends Request
      * @param $errstr
      * @throws HttpException
      */
-    private function errorHandler($errno, $errstr)
+    protected function errorHandler($errno, $errstr)
     {
+        $this->response->error = $errstr;
+        $this->response->errorCode = $errno;
+
         throw new HttpException($errstr, $errno);
     }
 
@@ -67,15 +70,9 @@ class StreamContext extends Request
 
             restore_error_handler();
 
-            $this->streamContextParseHeader();
-
             $this->response->body = $content;
 
             return $this->response;
-        } catch (HttpException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            throw new HttpException(null, 0, $e);
         } finally {
             $context = null;
         }
@@ -92,12 +89,16 @@ class StreamContext extends Request
 
     protected function streamContextExec($context)
     {
-        return file_get_contents($this->uri->build(), false, $context);
+        $content = file_get_contents($this->uri->build(), false, $context);
+
+        $this->streamContextParseHeader($http_response_header);
+
+        return $content;
     }
 
-    protected function streamContextParseHeader()
+    protected function streamContextParseHeader($headers)
     {
-        $this->response->header->parse($http_response_header);
+        $this->response->header->parse($headers);
 
         $this->response->code = $this->response->header->code;
     }

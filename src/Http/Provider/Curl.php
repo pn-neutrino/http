@@ -9,7 +9,7 @@ use Neutrino\Http\Standard\Method;
 use Neutrino\Http\Request;
 use Neutrino\Http\Response;
 
-abstract class Curl extends Request
+class Curl extends Request
 {
     private static $isAvailable;
 
@@ -83,10 +83,6 @@ abstract class Curl extends Request
             }
 
             return $this->response;
-        } catch (HttpException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            throw new HttpException(null, 0, $e);
         } finally {
             if (isset($ch) && is_resource($ch)) {
                 curl_close($ch);
@@ -108,6 +104,7 @@ abstract class Curl extends Request
                 CURLOPT_URL => $this->uri->build(),
                 CURLOPT_CUSTOMREQUEST => $method,
                 CURLOPT_AUTOREFERER => true,
+                CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_MAXREDIRS => 20,
                 CURLOPT_HEADER => false,
@@ -133,7 +130,7 @@ abstract class Curl extends Request
         $this->response->body = $result;
     }
 
-    final public function curlHeaderFunction($ch, $raw)
+    protected function curlHeaderFunction($ch, $raw)
     {
         if ($this->response->code === null) {
             $this->response->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -2,7 +2,7 @@
 
 namespace Neutrino\Http\Provider\StreamContext;
 
-use Neutrino\Http\Client\Provider\StreamContext;
+use Neutrino\Http\Provider\StreamContext;
 use Neutrino\Http\Streaming\Streamable;
 use Neutrino\Http\Streaming\Streamize;
 
@@ -17,13 +17,13 @@ class Streaming extends StreamContext implements Streamable
         try {
             $handler = fopen($this->uri->build(), 'r', null, $context);
 
-            $this->streamContextParseHeader();
+            $this->streamContextParseHeader($http_response_header);
 
             $emitter->fire(self::EVENT_START, [$this]);
 
             $buffer = $this->bufferSize ? $this->bufferSize : 4096;
 
-            while (feof($handler)) {
+            while (!feof($handler)) {
                 $emitter->fire(self::EVENT_PROGRESS, [$this, stream_get_contents($handler, $buffer)]);
             }
 

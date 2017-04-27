@@ -44,7 +44,7 @@ class Streaming extends Curl implements Streamable
      *
      * @return int
      */
-    public function curlWriteFunction($ch, $content)
+    protected function curlWriteFunction($ch, $content)
     {
         if (!$this->hasStarted) {
             $this->hasStarted = true;
