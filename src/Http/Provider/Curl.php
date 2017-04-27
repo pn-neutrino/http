@@ -3,11 +3,11 @@
 namespace Neutrino\Http\Provider;
 
 use Neutrino\Http\Exception as HttpException;
-use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Header;
-use Neutrino\Http\Standard\Method;
+use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Request;
 use Neutrino\Http\Response;
+use Neutrino\Http\Standard\Method;
 
 class Curl extends Request
 {
@@ -28,7 +28,7 @@ class Curl extends Request
      * Curl constructor.
      *
      * @param \Neutrino\Http\Response|null $response
-     * @param \Neutrino\Http\Header|null $header
+     * @param \Neutrino\Http\Header|null   $header
      */
     public function __construct(Response $response = null, Header $header = null)
     {
@@ -101,18 +101,18 @@ class Curl extends Request
         // Default Options
         curl_setopt_array($ch,
             [
-                CURLOPT_URL => $this->uri->build(),
-                CURLOPT_CUSTOMREQUEST => $method,
-                CURLOPT_AUTOREFERER => true,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 20,
-                CURLOPT_HEADER => false,
-                CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+                CURLOPT_URL             => $this->uri->build(),
+                CURLOPT_CUSTOMREQUEST   => $method,
+                CURLOPT_AUTOREFERER     => true,
+                CURLOPT_RETURNTRANSFER  => true,
+                CURLOPT_FOLLOWLOCATION  => true,
+                CURLOPT_MAXREDIRS       => 20,
+                CURLOPT_HEADER          => false,
+                CURLOPT_PROTOCOLS       => CURLPROTO_HTTP | CURLPROTO_HTTPS,
                 CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
-                CURLOPT_CONNECTTIMEOUT => 30,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HEADERFUNCTION => [$this, 'curlHeaderFunction'],
+                CURLOPT_CONNECTTIMEOUT  => 30,
+                CURLOPT_TIMEOUT         => 30,
+                CURLOPT_HEADERFUNCTION  => [$this, 'curlHeaderFunction'],
             ]);
 
         curl_setopt_array($ch, $this->options);
@@ -149,7 +149,7 @@ class Curl extends Request
 
         if (($errno = curl_errno($ch)) !== 0) {
             $this->response->errorCode = curl_errno($ch);
-            $this->response->error = curl_error($ch);
+            $this->response->error     = curl_error($ch);
         }
 
         $this->response->curlInfos = curl_getinfo($ch);
@@ -169,14 +169,14 @@ class Curl extends Request
                 return $this
                     ->setOption(CURLOPT_POSTFIELDS, json_encode($this->params))
                     ->addHeader('Content-Type', 'application/json');
-            } else {
-                return $this
-                    ->setOption(CURLOPT_POSTFIELDS, http_build_query($this->params))
-                    ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
             }
-        } else {
-            return $this->buildUrl();
+
+            return $this
+                ->setOption(CURLOPT_POSTFIELDS, http_build_query($this->params))
+                ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
         }
+
+        return $this->buildUrl();
     }
 
     /**

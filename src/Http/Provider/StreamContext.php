@@ -2,12 +2,11 @@
 
 namespace Neutrino\Http\Provider;
 
-use Neutrino\Http\Header;
 use Neutrino\Http\Exception as HttpException;
+use Neutrino\Http\Header;
 use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Request;
 use Neutrino\Http\Response;
-
 use Neutrino\Http\Uri;
 
 class StreamContext extends Request
@@ -47,11 +46,12 @@ class StreamContext extends Request
     /**
      * @param $errno
      * @param $errstr
+     *
      * @throws HttpException
      */
     protected function errorHandler($errno, $errstr)
     {
-        $this->response->error = $errstr;
+        $this->response->error     = $errstr;
         $this->response->errorCode = $errno;
 
         throw new HttpException($errstr, $errno);
@@ -82,8 +82,8 @@ class StreamContext extends Request
     {
         stream_context_set_option($context, ['http' => array_merge([
             'follow_location' => 1,
-            'max_redirects' => 20,
-            'timeout' => 30
+            'max_redirects'   => 20,
+            'timeout'         => 30
         ], $this->options)]);
     }
 
@@ -112,17 +112,17 @@ class StreamContext extends Request
     {
         if ($this->isPostMethod()) {
             if ($this->isJsonRequest()) {
-                $this->header->set('Content-Type', 'application/json');
-                $this->setOption('content', json_encode($this->params));
-            } else {
-                $this->header->set('Content-Type', 'application/x-www-form-urlencoded');
-                $this->setOption('content', http_build_query($this->params));
+                return $this
+                    ->addHeader('Content-Type', 'application/json')
+                    ->setOption('content', json_encode($this->params));
             }
 
-            return $this;
-        } else {
-            return $this->buildUrl();
+            return $this
+                ->addHeader('Content-Type', 'application/x-www-form-urlencoded')
+                ->setOption('content', http_build_query($this->params));
         }
+
+        return $this->buildUrl();
     }
 
     /**
@@ -147,8 +147,8 @@ class StreamContext extends Request
         if (isset($this->proxy['host'])) {
             $uri = new Uri([
                 'scheme' => 'tcp',
-                'host' => $this->proxy['host'],
-                'port' => isset($this->proxy['port']) ? $this->proxy['port'] : 80
+                'host'   => $this->proxy['host'],
+                'port'   => isset($this->proxy['port']) ? $this->proxy['port'] : 80
             ]);
 
             if (isset($this->proxy['access'])) {
