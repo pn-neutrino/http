@@ -17,12 +17,8 @@ use \Neutrino\Http\Method;
 $curl = new HttpCurl;
 
 $response = $curl
-  ->setMethod(Method::GET)
-  ->setUrl('http://www.google.com')
-  ->setParams(['foo' => 'bar'])
-  ->setParam('bar', 'baz')
-  ->setHeader('Accept', 'text/plain')
-  ->send();
+    ->get('http://www.google.com', ['foo' => 'bar'], ['Accept' => 'text/plain'])
+    ->send();
   
 $response->code; // HTTP Status Code
 ```
@@ -38,8 +34,7 @@ use \Neutrino\Http\Method;
 $curl = new HttpCurlStream;
 
 $response = $curl
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->on(HttpCurlStream::EVENT_START, function (HttpCurlStream $curl) {
         // Start to download response body
         // Header are fully loaded when the event are raised
@@ -54,8 +49,7 @@ $response = $curl
 Transfer huge data, without overloading the php memory :
 ```php
 $curl
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->on(HttpCurlStream::EVENT_START, function (HttpCurlStream $curl) {
         if ($curl->response->header->has('Content-Length')) {
             header('Content-Length: ' . $curl->response->header->get('Content-Length'));
@@ -75,8 +69,7 @@ Download huge file, without overloading the php memory :
 $resource = fopen($path, 'w');
 
 $curl
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->on(HttpCurlStream::EVENT_PROGRESS, function (HttpCurlStream $curl, $content) use ($resource) {
         fwrite($resource, $content, strlen($content));
     })
@@ -98,12 +91,8 @@ use \Neutrino\Http\Method;
 $streamCtx = new HttpStreamCtx;
 
 $response = $streamCtx
-  ->setMethod(Method::GET)
-  ->setUrl('http://www.google.com')
-  ->setParams(['foo' => 'bar'])
-  ->setParam('bar', 'baz')
-  ->setHeader('Accept', 'text/plain')
-  ->send();
+    ->get('http://www.google.com', ['foo' => 'bar'], ['Accept' => 'text/plain'])
+    ->send();
   
 $response->code; // HTTP Status Code
 ```
@@ -119,8 +108,7 @@ use \Neutrino\Http\Method;
 $streamCtx = new HttpStreamCtxStreaming;
 
 $response = $streamCtx
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->on(HttpStreamCtxStreaming::EVENT_START, function (HttpStreamCtxStreaming $streamCtx) {
         // Start to download response body
         // Header are fully loaded when the event are raised
@@ -147,8 +135,7 @@ use \Neutrino\Http\Method;
 $streamCtx = new HttpStreamCtx;
 
 $response = $streamCtx
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->setAuth(new AuthBasic('user', 'pass'))
     ->send();
 ```
@@ -167,8 +154,7 @@ use \Neutrino\Http\Method;
 $curl = new HttpCurl;
 
 $response = $curl
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->setAuth(new AuthCurl(CURLAUTH_BASIC | CURLAUTH_DIGEST, 'user', 'pass'))
     ->send();
 ```
@@ -212,8 +198,7 @@ use \Neutrino\Http\Method;
 $curl = new HttpCurl;
 
 $response = $curl
-    ->setMethod(Method::GET)
-    ->setUrl('http://www.google.com')
+    ->get('http://www.google.com')
     ->setAuth(new AuthHmac('key_id', 'key_value'))
     ->send();
 ```
