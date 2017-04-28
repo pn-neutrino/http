@@ -1,24 +1,21 @@
 <?php
 
-/*
-  +------------------------------------------------------------------------+
-  | Phalcon Framework                                                      |
-  +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2016 Phalcon Team (https://www.phalconphp.com)      |
-  +------------------------------------------------------------------------+
-  | This source file is subject to the New BSD License that is bundled     |
-  | with this package in the file LICENSE.txt.                             |
-  |                                                                        |
-  | If you did not receive a copy of the license and are unable to         |
-  | obtain it through the world-wide-web, please send an email             |
-  | to license@phalconphp.com so we can send you a copy immediately.       |
-  +------------------------------------------------------------------------+
-  | Author: Tuğrul Topuz <tugrultopuz@gmail.com>                           |
-  +------------------------------------------------------------------------+
-*/
-
 namespace Neutrino\Http;
 
+/**
+ * Class Uri
+ *
+ * @property string|null $scheme
+ * @property string|null $host
+ * @property string|null $port
+ * @property string|null $user
+ * @property string|null $pass
+ * @property string|null $path
+ * @property array|string|null $query
+ * @property string|null $fragment
+ *
+ * @package Neutrino\Http
+ */
 class Uri
 {
     private $parts = [];
@@ -28,6 +25,7 @@ class Uri
         if (empty($uri)) {
             return;
         }
+
         if (is_string($uri)) {
             $this->parts = parse_url($uri);
             if (!empty($this->parts['query'])) {
@@ -37,13 +35,12 @@ class Uri
             }
             return;
         }
-        if ($uri instanceof self) {
-            $this->parts = $uri->parts;
-            return;
-        }
         if (is_array($uri)) {
             $this->parts = $uri;
             return;
+        }
+        if ($uri instanceof self) {
+            $this->parts = $uri->parts;
         }
     }
 
@@ -88,10 +85,11 @@ class Uri
                     $uri .= '@';
                 }
                 $uri .= $parts['host'];
+
+                if (!empty($parts['port'])) {
+                    $uri .= ':' . $parts['port'];
+                }
             }
-        }
-        if (!empty($parts['port'])) {
-            $uri .= ':' . $parts['port'];
         }
         if (!empty($parts['path'])) {
             $uri .= $parts['path'];
@@ -135,7 +133,7 @@ class Uri
         return $this;
     }
 
-    public function extendQuery($params)
+    public function extendQuery(array $params = null)
     {
         $query = empty($this->parts['query']) ? [] : $this->parts['query'];
         $params = empty($params) ? [] : $params;
