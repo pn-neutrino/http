@@ -6,7 +6,7 @@
  * Time: 11:46
  */
 
-namespace Neutrino\Http\Streaming;
+namespace Neutrino\Http\Provider\Streaming;
 
 
 use Neutrino\Http\Event\Emitter;
