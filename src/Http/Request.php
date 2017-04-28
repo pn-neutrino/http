@@ -81,13 +81,11 @@ abstract class Request
     /**
      * Request constructor.
      *
-     * @param \Neutrino\Http\Response|null $response
      * @param \Neutrino\Http\Header|null   $header
      */
-    public function __construct(Response $response = null, Header $header = null)
+    public function __construct(Header $header = null)
     {
-        $this->header   = $header === null ? new Header() : $header;
-        $this->response = $response === null ? new Response() : $response;
+        $this->header = new Header();
     }
 
     /**
@@ -458,6 +456,8 @@ abstract class Request
             ->buildProxy()
             ->buildCookies()
             ->buildHeaders();
+
+        $this->response = new Response();
 
         return $this->makeCall();
     }

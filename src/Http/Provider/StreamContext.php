@@ -27,11 +27,11 @@ class StreamContext extends Request
         }
     }
 
-    public function __construct(Response $response = null, Header $header = null)
+    public function __construct()
     {
         self::checkAvailability();
 
-        parent::__construct($response, $header);
+        parent::__construct();
     }
 
     /**

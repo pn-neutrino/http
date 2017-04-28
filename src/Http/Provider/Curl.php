@@ -26,15 +26,12 @@ class Curl extends Request
 
     /**
      * Curl constructor.
-     *
-     * @param \Neutrino\Http\Response|null $response
-     * @param \Neutrino\Http\Header|null   $header
      */
-    public function __construct(Response $response = null, Header $header = null)
+    public function __construct()
     {
         self::checkAvailability();
 
-        parent::__construct($response, $header);
+        parent::__construct();
     }
 
     /**
