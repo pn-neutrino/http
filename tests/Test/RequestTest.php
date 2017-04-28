@@ -3,7 +3,6 @@
 namespace Test;
 
 use Neutrino\Http\Auth;
-use Neutrino\Http\Request;
 use Neutrino\Http\Standard\Method;
 use Neutrino\Http\Uri;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +16,7 @@ class RequestTest extends TestCase
 {
     public function testUri()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setUri('http://www.google.com/');
 
@@ -39,7 +38,7 @@ class RequestTest extends TestCase
 
     public function testParams()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setParams([
             'test'  => 'value',
@@ -87,13 +86,13 @@ class RequestTest extends TestCase
 
     public function testAuth()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setAuth(new Auth\Basic('user', 'pass'));
 
         $this->assertEquals(new Auth\Basic('user', 'pass'), $request->getAuth());
 
-        $reflectionClass = new \ReflectionClass(FakeRequest::class);
+        $reflectionClass = new \ReflectionClass(_Fake\FakeRequest::class);
 
         $buildAuthMethod = $reflectionClass->getMethod('buildAuth');
         $buildAuthMethod->setAccessible(true);
@@ -109,7 +108,7 @@ class RequestTest extends TestCase
 
     public function testProxy()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setProxy('domain.com');
 
@@ -138,7 +137,7 @@ class RequestTest extends TestCase
 
     public function testOptions()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setOptions([
             'test'  => 'value',
@@ -186,9 +185,9 @@ class RequestTest extends TestCase
 
     public function testHeader()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
-        $reflectionClass = new \ReflectionClass(FakeRequest::class);
+        $reflectionClass = new \ReflectionClass(_Fake\FakeRequest::class);
 
         $headerProperty = $reflectionClass->getProperty('header');
         $headerProperty->setAccessible(true);
@@ -240,7 +239,7 @@ class RequestTest extends TestCase
 
     public function testCookies()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setCookies([
             'test'  => 'value',
@@ -296,7 +295,7 @@ class RequestTest extends TestCase
 
     public function testJson()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setJsonRequest(true);
 
@@ -309,11 +308,11 @@ class RequestTest extends TestCase
 
     public function testBuildUrl()
     {
-        $reflectionClass = new \ReflectionClass(FakeRequest::class);
+        $reflectionClass = new \ReflectionClass(_Fake\FakeRequest::class);
         $buildUrlMethod = $reflectionClass->getMethod('buildUrl');
         $buildUrlMethod->setAccessible(true);
 
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->setUri('http://www.google.com/');
 
@@ -332,7 +331,7 @@ class RequestTest extends TestCase
 
     public function testCall()
     {
-        $request = new FakeRequest();
+        $request = new _Fake\FakeRequest();
 
         $request->call();
 
@@ -347,107 +346,3 @@ class RequestTest extends TestCase
     }
 }
 
-class FakeRequest extends Request
-{
-    public $called = [];
-
-    /**
-     * Definie le timeout de la requete
-     *
-     * @param int $timeout
-     *
-     * @return $this
-     */
-    public function setTimeout($timeout)
-    {
-        return $this->setOption('timeout', $timeout);
-    }
-
-    /**
-     * @return \Neutrino\Http\Response
-     */
-    protected function makeCall()
-    {
-        $this->called[] = __FUNCTION__;
-
-        $this->response->body = json_encode($this->options);
-
-        return $this->response;
-    }
-
-    /**
-     * Construit les parametres de la requete.
-     *
-     * @return $this
-     */
-    protected function buildParams()
-    {
-        $this->called[] = __FUNCTION__;
-
-        if (!empty($this->params)) {
-
-            if ($this->isPostMethod()) {
-                if ($this->isJsonRequest()) {
-                    return $this->setOption('params', json_encode($this->params));
-                }
-
-                return $this->setOption('params', $this->params);
-            }
-
-            $this->uri->extendQuery($this->params);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Construit les headers de la requete.
-     *
-     * @return $this
-     */
-    protected function buildHeaders()
-    {
-        $this->called[] = __FUNCTION__;
-
-        return $this->setOption('headers', $this->header->build());
-    }
-
-    /**
-     * Construit le proxy de la requete
-     *
-     * @return $this
-     */
-    protected function buildProxy()
-    {
-        $this->called[] = __FUNCTION__;
-
-        return $this->setOption('proxy', $this->proxy);
-    }
-
-    /**
-     * Construit les cookies de la requete
-     *
-     * @return $this
-     */
-    protected function buildCookies()
-    {
-        $this->called[] = __FUNCTION__;
-
-        return $this->setOption('cookies', $this->getCookies(true));
-    }
-
-    protected function buildAuth()
-    {
-        $this->called[] = __FUNCTION__;
-
-        return parent::buildAuth();
-    }
-
-    public function extendUrl(array $parameters = [])
-    {
-        $this->called[] = __FUNCTION__;
-
-        return parent::extendUrl($parameters);
-    }
-
-}
