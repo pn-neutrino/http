@@ -18,12 +18,12 @@ class StreamContextTest extends TestCase
     public function dataCall()
     {
         return [
-            "GET 200"    => self::makeDataCall(Method::GET, 200),
-            "HEAD 200"   => self::makeDataCall(Method::HEAD, 200),
+            "GET 200" => self::makeDataCall(Method::GET, 200),
+            "HEAD 200" => self::makeDataCall(Method::HEAD, 200),
             "DELETE 200" => self::makeDataCall(Method::DELETE, 200),
-            "POST 200"   => self::makeDataCall(Method::POST, 200),
-            "PUT 200"    => self::makeDataCall(Method::PUT, 200),
-            "PATCH 200"  => self::makeDataCall(Method::PATCH, 200),
+            "POST 200" => self::makeDataCall(Method::POST, 200),
+            "PUT 200" => self::makeDataCall(Method::PUT, 200),
+            "PATCH 200" => self::makeDataCall(Method::PATCH, 200),
 
             "GET 300" => self::makeDataCall(Method::GET, 300),
             "GET 400" => self::makeDataCall(Method::GET, 400),
@@ -32,14 +32,14 @@ class StreamContextTest extends TestCase
 
             "GET 200'Success'" => self::makeDataCall(Method::GET, 200, 'Success'),
 
-            "GET 200 query"    => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
-            "HEAD 200 query"   => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
+            "GET 200 query" => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
+            "HEAD 200 query" => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
             "DELETE 200 query" => self::makeDataCall(Method::DELETE, 200, null, ['query' => 'test']),
-            "POST 200 query"   => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
-            "PUT 200 query"    => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
-            "PATCH 200 query"  => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
+            "POST 200 query" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
+            "PUT 200 query" => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
+            "PATCH 200 query" => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
 
-            "GET 200 json"  => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
+            "GET 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
             "POST 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
         ];
     }
@@ -119,7 +119,7 @@ class StreamContextTest extends TestCase
 
     public function testBuildProxy()
     {
-        $reflectionClass  = new \ReflectionClass(StreamContext::class);
+        $reflectionClass = new \ReflectionClass(StreamContext::class);
         $buildProxyMethod = $reflectionClass->getMethod('buildProxy');
         $buildProxyMethod->setAccessible(true);
 
@@ -146,7 +146,7 @@ class StreamContextTest extends TestCase
 
     public function testBuildCookies()
     {
-        $reflectionClass    = new \ReflectionClass(StreamContext::class);
+        $reflectionClass = new \ReflectionClass(StreamContext::class);
         $buildCookiesMethod = $reflectionClass->getMethod('buildCookies');
         $buildCookiesMethod->setAccessible(true);
 
@@ -199,13 +199,13 @@ class StreamContextTest extends TestCase
 
         $watcher = [];
 
-        $closureStart    = function () use (&$watcher) {
+        $closureStart = function () use (&$watcher) {
             $watcher[] = 'start';
         };
         $closureProgress = function () use (&$watcher) {
             $watcher[] = 'progress';
         };
-        $closureFinish   = function () use (&$watcher) {
+        $closureFinish = function () use (&$watcher) {
             $watcher[] = 'finish';
         };
 
@@ -243,5 +243,19 @@ class StreamContextTest extends TestCase
         $listener = $listenerProperty->getValue($emitter);
 
         $this->assertEquals([], $listener[$streamCtx::EVENT_FINISH]);
+    }
+
+    /**
+     * @expectedException \Neutrino\Http\Provider\Exception
+     * @expectedExceptionMessage Neutrino\Http\Provider\StreamContext HTTP or HTTPS stream wrappers not registered.
+     */
+    public function testAvailabilityFail()
+    {
+        $reflection = new \ReflectionClass(StreamContext::class);
+        $isAvailableProperty = $reflection->getProperty('isAvailable');
+        $isAvailableProperty->setAccessible(true);
+        $isAvailableProperty->setValue(null, false);
+
+        new StreamContext;
     }
 }

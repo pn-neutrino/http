@@ -21,7 +21,7 @@ class StreamContext extends Request
         }
 
         if (!self::$isAvailable) {
-            throw new ProviderException(self::class . ' HTTP or HTTPS stream wrappers not registered.');
+            throw new ProviderException(static::class . ' HTTP or HTTPS stream wrappers not registered.');
         }
     }
 

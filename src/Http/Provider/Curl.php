@@ -20,7 +20,7 @@ class Curl extends Request
         }
 
         if (!self::$isAvailable) {
-            throw new ProviderException(self::class . ' require curl extension');
+            throw new ProviderException(static::class . ' require curl extension.');
         }
     }
 

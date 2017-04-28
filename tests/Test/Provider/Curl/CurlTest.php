@@ -247,4 +247,18 @@ class CurlTest extends TestCase
 
         $this->assertEquals([], $listener[$curl::EVENT_FINISH]);
     }
+
+    /**
+     * @expectedException \Neutrino\Http\Provider\Exception
+     * @expectedExceptionMessage Neutrino\Http\Provider\Curl require curl extension.
+     */
+    public function testAvailabilityFail()
+    {
+        $reflection = new \ReflectionClass(Curl::class);
+        $isAvailableProperty = $reflection->getProperty('isAvailable');
+        $isAvailableProperty->setAccessible(true);
+        $isAvailableProperty->setValue(null, false);
+
+        new Curl;
+    }
 }
