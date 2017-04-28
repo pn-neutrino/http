@@ -17,12 +17,12 @@ class CurlTest extends TestCase
             'BASIC' => [CURLAUTH_BASIC, 'user', 'pass'],
             'DIGEST' => [CURLAUTH_DIGEST, 'user', 'pass'],
             'NTLM' => [CURLAUTH_NTLM, 'user', 'pass'],
-            'NTLM_WB' => [CURLAUTH_NTLM_WB, 'user', 'pass'],
-            'NEGOTIATE' => [CURLAUTH_NEGOTIATE, 'user', 'pass'],
+            //'NTLM_WB' => [CURLAUTH_NTLM_WB, 'user', 'pass'],
+            //'NEGOTIATE' => [CURLAUTH_NEGOTIATE, 'user', 'pass'],
             'GSSNEGOTIATE' => [CURLAUTH_GSSNEGOTIATE, 'user', 'pass'],
 
             'BASIC|DIGEST' => [CURLAUTH_BASIC | CURLAUTH_DIGEST, 'user', 'pass'],
-            'BASIC|DIGEST|NEGOTIATE' => [CURLAUTH_BASIC | CURLAUTH_DIGEST | CURLAUTH_NEGOTIATE, 'user', 'pass'],
+            'BASIC|DIGEST|GSSNEGOTIATE' => [CURLAUTH_BASIC | CURLAUTH_DIGEST | CURLAUTH_GSSNEGOTIATE, 'user', 'pass'],
         ];
     }
 

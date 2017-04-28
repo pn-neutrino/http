@@ -35,10 +35,11 @@ class Curl implements Component
             || $type == CURLAUTH_ANYSAFE
             || $type & CURLAUTH_BASIC
             || $type & CURLAUTH_DIGEST
-            || $type & CURLAUTH_NEGOTIATE
+            //|| $type & CURLAUTH_NEGOTIATE => PHP 7.0.7 Only
             || $type & CURLAUTH_GSSNEGOTIATE
             || $type & CURLAUTH_NTLM
-            || $type & CURLAUTH_NTLM_WB
+            //|| $type & CURLAUTH_NTLM_WB
+            || ($type & 32 && PHP_VERSION_ID >= 70707 )
         ) {
             $this->type = $type;
             $this->user = $user;
