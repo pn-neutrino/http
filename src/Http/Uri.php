@@ -156,11 +156,7 @@ class Uri
             $this->parts['path'] = '/' . $path;
             return $this;
         }
-        $this->parts['path'] = substr(
-                $this->parts['path'],
-                0,
-                strrpos($this->parts['path'], '/') + 1
-            ) . $path;
+        $this->parts['path'] = substr($this->parts['path'], 0, strrpos($this->parts['path'], '/') + 1) . $path;
         return $this;
     }
 }
