@@ -151,8 +151,8 @@ class StreamContextTest extends TestCase
 
         $streamCtx = new StreamContext;
 
-        $streamCtx->addCookie(null, 'biscuit');
-        $streamCtx->addCookie(null, 'muffin');
+        $streamCtx->setCookie(null, 'biscuit');
+        $streamCtx->setCookie(null, 'muffin');
 
         $buildCookiesMethod->invoke($streamCtx);
 

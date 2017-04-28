@@ -213,7 +213,7 @@ abstract class Request
      *
      * @return $this
      */
-    public function addParam($name, $value)
+    public function setParam($name, $value)
     {
         $this->params[$name] = $value;
 
@@ -273,7 +273,7 @@ abstract class Request
      *
      * @return $this
      */
-    public function addHeader($name, $value)
+    public function setHeader($name, $value)
     {
         $this->header->set($name, $value);
 
@@ -356,7 +356,7 @@ abstract class Request
         if (isset($auth['type'])) {
             switch ($auth['type']) {
                 case 'basic':
-                    $this->addHeader('Authorization', 'Basic ' . base64_encode($auth['user'] . ':' . $auth['pass']));
+                    $this->setHeader('Authorization', 'Basic ' . base64_encode($auth['user'] . ':' . $auth['pass']));
                     break;
                 default:
                     // TODO
@@ -408,7 +408,7 @@ abstract class Request
      * @return $this
      * @throws \InvalidArgumentException
      */
-    public function addCookie($key, $value)
+    public function setCookie($key, $value)
     {
         if (is_null($key)) {
             $this->cookies[] = $value;

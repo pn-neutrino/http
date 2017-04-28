@@ -129,12 +129,12 @@ class StreamContext extends Request
         if ($this->isPostMethod()) {
             if ($this->isJsonRequest()) {
                 return $this
-                    ->addHeader('Content-Type', 'application/json')
+                    ->setHeader('Content-Type', 'application/json')
                     ->setOption('content', json_encode($this->params));
             }
 
             return $this
-                ->addHeader('Content-Type', 'application/x-www-form-urlencoded')
+                ->setHeader('Content-Type', 'application/x-www-form-urlencoded')
                 ->setOption('content', http_build_query($this->params));
         }
 
@@ -185,7 +185,7 @@ class StreamContext extends Request
     protected function buildCookies()
     {
         if (!empty($this->cookies)) {
-            return $this->addHeader('Cookie', $this->getCookies(true));
+            return $this->setHeader('Cookie', $this->getCookies(true));
         }
 
         return $this;

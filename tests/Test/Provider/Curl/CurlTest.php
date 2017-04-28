@@ -157,8 +157,8 @@ class CurlTest extends TestCase
 
         $curl = new Curl;
 
-        $curl->addCookie(null, 'biscuit');
-        $curl->addCookie(null, 'muffin');
+        $curl->setCookie(null, 'biscuit');
+        $curl->setCookie(null, 'muffin');
 
         $buildCookiesMethod->invoke($curl);
 

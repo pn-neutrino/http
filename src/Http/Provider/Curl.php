@@ -168,12 +168,12 @@ class Curl extends Request
             if ($this->isJsonRequest()) {
                 return $this
                     ->setOption(CURLOPT_POSTFIELDS, json_encode($this->params))
-                    ->addHeader('Content-Type', 'application/json');
+                    ->setHeader('Content-Type', 'application/json');
             }
 
             return $this
                 ->setOption(CURLOPT_POSTFIELDS, http_build_query($this->params))
-                ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+                ->setHeader('Content-Type', 'application/x-www-form-urlencoded');
         }
 
         return $this->buildUrl();

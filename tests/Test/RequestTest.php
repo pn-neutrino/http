@@ -50,7 +50,7 @@ class RequestTest extends TestCase
             'test1' => 'value1',
         ], $request->getParams());
 
-        $request->addParam('test', 'test');
+        $request->setParam('test', 'test');
 
         $this->assertEquals([
             'test'  => 'test',
@@ -207,7 +207,7 @@ class RequestTest extends TestCase
             'test1' => 'value1',
         ], $header->getHeaders());
 
-        $request->addHeader('test', 'test');
+        $request->setHeader('test', 'test');
 
         $this->assertEquals([
             'test'  => 'test',
@@ -255,8 +255,8 @@ class RequestTest extends TestCase
             'test1' => 'value1',
         ], $request->getCookies());
 
-        $request->addCookie('test', 'test');
-        $request->addCookie(null, 'test');
+        $request->setCookie('test', 'test');
+        $request->setCookie(null, 'test');
 
         $this->assertEquals([
             0       => 'test',
