@@ -21,9 +21,7 @@ class StreamContextStreamingTest extends TestCase
         $whatcher = [];
 
         $streamCtxStreaming
-            ->setMethod(Method::GET)
-            ->setUri('http://127.0.0.1:8000/')
-            ->setParams(['stream' => true])
+            ->get('http://127.0.0.1:8000/', ['stream' => true])
             ->setBufferSize(2048)
             ->on(Curl\Streaming::EVENT_START, function (StreamContext\Streaming $streamCtxStreaming) use (&$whatcher) {
                 if (isset($whatcher[StreamContext\Streaming::EVENT_START])) {

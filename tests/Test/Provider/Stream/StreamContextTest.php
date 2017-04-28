@@ -67,16 +67,14 @@ class StreamContextTest extends TestCase
             $expected['body'] = json_encode($jsonBody);
         }
 
-        $curl = new StreamContext();
+        $streamCtx = new StreamContext();
 
-        $curl
-            ->setMethod($method)
+        $streamCtx
+            ->request($method, 'http://127.0.0.1:8000' . $url, $params)
             ->setJsonRequest($json)
-            ->setUri('http://127.0.0.1:8000' . $url)
-            ->setParams($params)
             ->send();
 
-        $response = $curl->response;
+        $response = $streamCtx->response;
 
         $this->assertEquals($response->code, $response->header->code);
         $this->assertEquals($expected['code'], $response->code);

@@ -59,11 +59,9 @@ class CurlTest extends TestCase
         $curl = new Curl();
 
         $curl
-            ->setMethod($method)
+            ->request($method, 'http://127.0.0.1:8000' . $url, $params)
             ->setJsonRequest($json)
-            ->setUri('http://127.0.0.1:8000' . $url)
             ->setProxy('', null, null)// Force Remove proxy
-            ->setParams($params)
             ->send();
 
         $response = $curl->response;
@@ -89,8 +87,7 @@ class CurlTest extends TestCase
             $curl = new Curl();
 
             $curl
-                ->setMethod('GET')
-                ->setUri('http://invalid domain')
+                ->request(Method::GET, 'http://invalid domain')
                 ->setProxy('', null, null)// Force Remove proxy
                 ->send();
 

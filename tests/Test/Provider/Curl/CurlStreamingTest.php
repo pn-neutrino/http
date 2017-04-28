@@ -20,10 +20,8 @@ class CurlStreamingTest extends TestCase
         $whatcher = [];
 
         $curlStream
-            ->setMethod(Method::GET)
-            ->setUri('http://127.0.0.1:8000/')
+            ->get('http://127.0.0.1:8000/', ['stream' => true])
             ->setProxy('', null, null)// Force Remove proxy
-            ->setParams(['stream' => true])
             ->setBufferSize(2048)
             ->on(Curl\Streaming::EVENT_START, function (Curl\Streaming $curlStream) use (&$whatcher) {
                 if (isset($whatcher[Curl\Streaming::EVENT_START])) {

@@ -3,6 +3,7 @@
 namespace Neutrino\Http;
 
 use Neutrino\Http\Contract\Request\Component;
+use Neutrino\Http\Standard\Method;
 
 abstract class Request
 {
@@ -81,7 +82,7 @@ abstract class Request
     /**
      * Request constructor.
      *
-     * @param \Neutrino\Http\Header|null   $header
+     * @param \Neutrino\Http\Header|null $header
      */
     public function __construct(Header $header = null)
     {
@@ -190,7 +191,7 @@ abstract class Request
      * Definie, ou ajoute, des parametres de la requete
      *
      * @param array $parameters
-     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -208,7 +209,7 @@ abstract class Request
     /**
      * Ajout un parametre à la requete
      *
-     * @param string       $name
+     * @param string $name
      * @param string|array $value
      *
      * @return $this
@@ -254,7 +255,7 @@ abstract class Request
      * Definie, ou ajoute, des headers à la requete
      *
      * @param array $headers
-     * @param bool  $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajout les parametres aux parametres existant, ou les ecrases
      *
      * @return $this
      */
@@ -294,7 +295,7 @@ abstract class Request
      * Definie les informations de proxy
      *
      * @param string $host
-     * @param int    $port
+     * @param int $port
      * @param string $access
      *
      * @return $this
@@ -302,8 +303,8 @@ abstract class Request
     public function setProxy($host, $port = 8080, $access = null)
     {
         $this->proxy = [
-            'host'   => $host,
-            'port'   => $port,
+            'host' => $host,
+            'port' => $port,
             'access' => $access,
         ];
 
@@ -366,7 +367,7 @@ abstract class Request
 
     /**
      * @param array $cookies
-     * @param bool  $merge Est-ce que l'on ajout les $cookies aux $cookies existant, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajout les $cookies aux $cookies existant, ou les ecrases
      *
      * @return $this
      */
@@ -385,7 +386,7 @@ abstract class Request
      * Ajoute un cookie a la requete
      *
      * @param null|string $key
-     * @param string      $value
+     * @param string $value
      *
      * @return $this
      * @throws \InvalidArgumentException
@@ -415,7 +416,7 @@ abstract class Request
      * Definie, ou ajoute, des options
      *
      * @param array $options
-     * @param bool  $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
+     * @param bool $merge Est-ce que l'on ajoute les options aux options existantes, ou les ecrases
      *
      * @return $this
      */
@@ -460,6 +461,105 @@ abstract class Request
         $this->response = new Response();
 
         return $this->makeCall();
+    }
+
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     *
+     * @return $this
+     */
+    public function request($method, $uri, array $params = [], array $headers = [])
+    {
+        $this
+            ->setMethod($method)
+            ->setUri($uri);
+
+        if (!empty($params)) {
+            $this->setParams($params, true);
+        }
+        if (!empty($headers)) {
+            $this->setHeaders($headers, true);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     *
+     * @return $this
+     */
+    public function get($uri, array $params = [], array $headers = [])
+    {
+        return $this->request(Method::GET, $uri, $params, $headers);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     *
+     * @return $this
+     */
+    public function head($uri, array $params = [], array $headers = [])
+    {
+        return $this->request(Method::HEAD, $uri, $params, $headers);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     *
+     * @return $this
+     */
+    public function delete($uri, array $params = [], array $headers = [])
+    {
+        return $this->request(Method::DELETE, $uri, $params, $headers);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     * @param bool $json
+     *
+     * @return $this
+     */
+    public function post($uri, array $params = [], array $headers = [], $json = false)
+    {
+        return $this->request(Method::POST, $uri, $params, $headers)->setJsonRequest($json);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     * @param bool $json
+     *
+     * @return $this
+     */
+    public function put($uri, array $params = [], array $headers = [], $json = false)
+    {
+        return $this->request(Method::PUT, $uri, $params, $headers)->setJsonRequest($json);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $params
+     * @param array $headers
+     * @param bool $json
+     *
+     * @return $this
+     */
+    public function patch($uri, array $params = [], array $headers = [], $json = false)
+    {
+        return $this->request(Method::PATCH, $uri, $params, $headers)->setJsonRequest($json);
     }
 
     /**

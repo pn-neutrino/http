@@ -41,30 +41,30 @@ class RequestTest extends TestCase
         $request = new _Fake\FakeRequest();
 
         $request->setParams([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ]);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ], $request->getParams());
 
         $request->setParam('test', 'test');
 
         $this->assertEquals([
-            'test'  => 'test',
+            'test' => 'test',
             'test1' => 'value1',
         ], $request->getParams());
 
         $request->setParams([
-            'test'  => 'value',
+            'test' => 'value',
             'test2' => 'value2',
             'test3' => 'value3',
         ], true);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
             'test2' => 'value2',
             'test3' => 'value3'
@@ -113,24 +113,24 @@ class RequestTest extends TestCase
         $request->setProxy('domain.com');
 
         $this->assertEquals([
-            'host'   => 'domain.com',
-            'port'   => 8080,
+            'host' => 'domain.com',
+            'port' => 8080,
             'access' => null
         ], $request->getProxy());
 
         $request->setProxy('domain.com', 8888);
 
         $this->assertEquals([
-            'host'   => 'domain.com',
-            'port'   => 8888,
+            'host' => 'domain.com',
+            'port' => 8888,
             'access' => null
         ], $request->getProxy());
 
         $request->setProxy('domain.com', 8888, 'user:pass');
 
         $this->assertEquals([
-            'host'   => 'domain.com',
-            'port'   => 8888,
+            'host' => 'domain.com',
+            'port' => 8888,
             'access' => 'user:pass'
         ], $request->getProxy());
     }
@@ -140,30 +140,30 @@ class RequestTest extends TestCase
         $request = new _Fake\FakeRequest();
 
         $request->setOptions([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ]);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ], $request->getOptions());
 
         $request->setOption('test', 'test');
 
         $this->assertEquals([
-            'test'  => 'test',
+            'test' => 'test',
             'test1' => 'value1',
         ], $request->getOptions());
 
         $request->setOptions([
-            'test'  => 'value',
+            'test' => 'value',
             'test2' => 'value2',
             'test3' => 'value3',
         ], true);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
             'test2' => 'value2',
             'test3' => 'value3'
@@ -194,30 +194,30 @@ class RequestTest extends TestCase
         $header = $headerProperty->getValue($request);
 
         $request->setHeaders([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ]);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ], $header->getHeaders());
 
         $request->setHeader('test', 'test');
 
         $this->assertEquals([
-            'test'  => 'test',
+            'test' => 'test',
             'test1' => 'value1',
         ], $header->getHeaders());
 
         $request->setHeaders([
-            'test'  => 'value',
+            'test' => 'value',
             'test2' => 'value2',
             'test3' => 'value3',
         ], true);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
             'test2' => 'value2',
             'test3' => 'value3'
@@ -242,12 +242,12 @@ class RequestTest extends TestCase
         $request = new _Fake\FakeRequest();
 
         $request->setCookies([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ]);
 
         $this->assertEquals([
-            'test'  => 'value',
+            'test' => 'value',
             'test1' => 'value1',
         ], $request->getCookies());
 
@@ -255,20 +255,20 @@ class RequestTest extends TestCase
         $request->setCookie(null, 'test');
 
         $this->assertEquals([
-            0       => 'test',
-            'test'  => 'test',
+            0 => 'test',
+            'test' => 'test',
             'test1' => 'value1',
         ], $request->getCookies());
 
         $request->setCookies([
-            'test'  => 'value',
+            'test' => 'value',
             'test2' => 'value2',
             'test3' => 'value3',
         ], true);
 
         $this->assertEquals([
-            0       => 'test',
-            'test'  => 'value',
+            0 => 'test',
+            'test' => 'value',
             'test1' => 'value1',
             'test2' => 'value2',
             'test3' => 'value3'
@@ -329,7 +329,7 @@ class RequestTest extends TestCase
         $this->assertEquals(['extendUrl'], $request->called);
     }
 
-    public function testCall()
+    public function testSend()
     {
         $request = new _Fake\FakeRequest();
 
@@ -344,5 +344,43 @@ class RequestTest extends TestCase
             'makeCall'
         ], $request->called);
     }
-}
 
+    public function dataRequest()
+    {
+        return [
+            [Method::GET, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
+            [Method::HEAD, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
+            [Method::DELETE, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
+            [Method::POST, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
+            [Method::PUT, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
+            [Method::PATCH, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataRequest
+     */
+    public function testRequest($method, $url, $params, $headers, $expectedUri)
+    {
+        $reflectionClass = new \ReflectionClass(_Fake\FakeRequest::class);
+
+        $headerProperty = $reflectionClass->getProperty('header');
+        $headerProperty->setAccessible(true);
+
+        $request = new _Fake\FakeRequest();
+
+        $this->assertEquals($request, $request->{strtolower($method)}($url, $params, $headers));
+
+        $this->assertEquals($method, $request->getMethod());
+        $this->assertEquals($expectedUri, $request->getUri()->build());
+        $this->assertEquals($params, $request->getParams());
+        $this->assertEquals($headers, $headerProperty->getValue($request)->getHeaders());
+
+        $this->assertEquals($request, $request->request($method, $url, $params, $headers));
+
+        $this->assertEquals($method, $request->getMethod());
+        $this->assertEquals($expectedUri, $request->getUri()->build());
+        $this->assertEquals($params, $request->getParams());
+        $this->assertEquals($headers, $headerProperty->getValue($request)->getHeaders());
+    }
+}
