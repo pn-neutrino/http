@@ -63,6 +63,6 @@ class CurlTest extends TestCase
      */
     public function testWrongType()
     {
-        new Auth\Curl('type', '', '');
+        new Auth\Curl(100000, '', '');
     }
 }
