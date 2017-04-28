@@ -8,8 +8,6 @@ Http Client library using Curl or HttpStream.
 
 ## Curl
 require curl extension.
-### Curl\Standard
-Standard curl request.
 
 #### How use :
 ```php
@@ -22,14 +20,14 @@ $response = $curl
   ->setMethod(Method::GET)
   ->setUrl('http://www.google.com')
   ->setParams(['foo' => 'bar'])
-  ->addParam('bar', 'baz')
-  ->addHeader('Accept', 'text/plain')
-  ->call();
+  ->setParam('bar', 'baz')
+  ->setHeader('Accept', 'text/plain')
+  ->send();
   
 $response->code; // HTTP Status Code
 ```
 
-### Curl\Stream
+### Curl\Streaming
 Curl\Stream allows you to work with large queries, by recovers content part by part.
 
 #### How use :
@@ -50,7 +48,7 @@ $response = $curl
         // Download progress
         // $content contain the response part
     })
-    ->call();
+    ->send();
 ```
 
 Transfer huge data, without overloading the php memory :
@@ -69,7 +67,7 @@ $curl
         flush();
         // => Direct echo contents & flush the output (free memory)
     })
-    ->call();
+    ->send();
 ```
 
 Download huge file, without overloading the php memory :
@@ -82,9 +80,142 @@ $curl
     ->on(HttpCurlStream::EVENT_PROGRESS, function (HttpCurlStream $curl, $content) use ($resource) {
         fwrite($resource, $content, strlen($content));
     })
-    ->call();
+    ->send();
 
 fclose($resource);
+```
+
+## StreamContext
+StreamContext make HTTP call via the php wrapper.
+
+This require you have "allow_url_fopen" configuration value set to '1'.
+
+#### How use :
+```php
+use \Neutrino\Http\Provider\StreamContext as HttpStreamCtx;
+use \Neutrino\Http\Method;
+
+$streamCtx = new HttpStreamCtx;
+
+$response = $streamCtx
+  ->setMethod(Method::GET)
+  ->setUrl('http://www.google.com')
+  ->setParams(['foo' => 'bar'])
+  ->setParam('bar', 'baz')
+  ->setHeader('Accept', 'text/plain')
+  ->send();
+  
+$response->code; // HTTP Status Code
+```
+
+### StreamContext\Streaming
+Such as Curl\Streaming, StreamContext\Streaming allows you to work with large queries, by recovers content part by part.
+
+#### How use :
+```php
+use \Neutrino\Http\Provider\StreamContext\Streaming as HttpStreamCtxStreaming;
+use \Neutrino\Http\Method;
+
+$streamCtx = new HttpStreamCtxStreaming;
+
+$response = $streamCtx
+    ->setMethod(Method::GET)
+    ->setUrl('http://www.google.com')
+    ->on(HttpStreamCtxStreaming::EVENT_START, function (HttpStreamCtxStreaming $streamCtx) {
+        // Start to download response body
+        // Header are fully loaded when the event are raised
+    })
+    ->on(HttpStreamCtxStreaming::EVENT_PROGRESS, function (HttpStreamCtxStreaming $streamCtx, $content) {
+        // Download progress
+        // $content contain the response part
+    })
+    ->send();
+```
+
+# Auth
+Authentication is a request component. 
+
+## Auth\Basic
+Auth\Basic provides the elements to configure a call with an Basic Authorization.
+
+#### How use :
+```php
+use \Neutrino\Http\Auth\Basic as AuthBasic;
+use \Neutrino\Http\Provider\StreamContext as HttpStreamCtx;
+use \Neutrino\Http\Method;
+
+$streamCtx = new HttpStreamCtx;
+
+$response = $streamCtx
+    ->setMethod(Method::GET)
+    ->setUrl('http://www.google.com')
+    ->setAuth(new AuthBasic('user', 'pass'))
+    ->send();
+```
+
+## Auth\Curl
+Specific for Curl provider.
+
+Auth\Curl provides the elements to build a call with Curl Auth.
+
+#### How use :
+```php
+use \Neutrino\Http\Auth\Curl as AuthCurl;
+use \Neutrino\Http\Provider\Curl as HttpCurl;
+use \Neutrino\Http\Method;
+
+$curl = new HttpCurl;
+
+$response = $curl
+    ->setMethod(Method::GET)
+    ->setUrl('http://www.google.com')
+    ->setAuth(new AuthCurl(CURLAUTH_BASIC | CURLAUTH_DIGEST, 'user', 'pass'))
+    ->send();
+```
+
+## Custom Auth Component
+You can easily make your own Auth Component : 
+
+```php
+namespace MyLib\Http\Auth;
+
+use Neutrino\Http\Request;
+use Neutrino\Http\Contract\Request\Component;
+
+class Hmac implements Component
+{
+    private $id;
+    private $value;
+
+    public function __construct($id, $value)
+    {
+        $this->id = $id;
+        $this->value = $value;
+    }
+
+    public function build(Request $request)
+    {
+        $date = date('D, d M Y H:i:s', time());
+        $signature = urlencode(base64_encode(hash_hmac('sha1', "date: $date", $this->value, true)));
+
+        $request
+            ->setHeader('Date', $date)
+            ->setHeader('Authorization', 'Signature keyId="' . $this->id . '",algorithm="hmac-sha1",signature="' . $signature . '"');
+    }
+}
+```
+```php
+use \MyLib\Http\Auth\Hmac as AuthHmac;
+use \Neutrino\Http\Provider\Curl as HttpCurl;
+use \Neutrino\Http\Method;
+
+$curl = new HttpCurl;
+
+$response = $curl
+    ->setMethod(Method::GET)
+    ->setUrl('http://www.google.com')
+    ->setAuth(new AuthHmac('key_id', 'key_value'))
+    ->send();
 ```
 
 # Response 
@@ -95,11 +226,11 @@ $response->status; // HTTP Status Message
 $response->header; // Response Headers
 $response->body;   // Response Body
 ```
-## Curl Info
+## Provider Info
 ```php
-$response->errorCode; // CURL Error Code
-$response->error;     // CURL Error Message
-$response->curlInfos; // All CURL Information
+$response->errorCode; // Provider Error Code
+$response->error;     // Provider Error Message
+$response->providerDatas; // All Provider Information (if available)
 ```
 
 ## Parse 
