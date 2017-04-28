@@ -2,6 +2,7 @@
 
 namespace Test\Provider\Stream;
 
+use Neutrino\Http\Event\Emitter;
 use Neutrino\Http\Provider\StreamContext;
 use Neutrino\Http\Standard\Method;
 use Test\Provider\TestCase;
@@ -162,5 +163,85 @@ class StreamContextTest extends TestCase
 
         $this->assertTrue($header->has('Cookie'));
         $this->assertEquals(implode(';', ['biscuit', 'muffin']), $header->get('Cookie'));
+    }
+
+    public function testSetTimeout()
+    {
+        $streamCtx = new StreamContext();
+
+        $streamCtx->setTimeout(10);
+
+        $options = $streamCtx->getOptions();
+
+        $this->assertArrayHasKey('timeout', $options);
+        $this->assertEquals(10, $options['timeout']);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Neutrino\Http\Provider\StreamContext\Streaming only support start, progress, finish
+     */
+    public function testTryRegisterWrongEvent()
+    {
+        $streamCtx = new StreamContext\Streaming();
+
+        $streamCtx->on('test', function () {
+        });
+    }
+
+    public function testOnOff()
+    {
+        $streamingReflectionClass = new \ReflectionClass(StreamContext\Streaming::class);
+        $emitterProperty = $streamingReflectionClass->getProperty('emitter');
+        $emitterProperty->setAccessible(true);
+
+        $streamCtx = new StreamContext\Streaming();
+
+        $watcher = [];
+
+        $closureStart    = function () use (&$watcher) {
+            $watcher[] = 'start';
+        };
+        $closureProgress = function () use (&$watcher) {
+            $watcher[] = 'progress';
+        };
+        $closureFinish   = function () use (&$watcher) {
+            $watcher[] = 'finish';
+        };
+
+        $streamCtx->on($streamCtx::EVENT_START, $closureStart);
+        $streamCtx->on($streamCtx::EVENT_PROGRESS, $closureProgress);
+        $streamCtx->on($streamCtx::EVENT_FINISH, $closureFinish);
+
+        $emitter = $emitterProperty->getValue($streamCtx);
+
+
+        $emitterReflectionClass = new \ReflectionClass(Emitter::class);
+        $listenerProperty = $emitterReflectionClass->getProperty('listeners');
+        $listenerProperty->setAccessible(true);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertArrayHasKey($streamCtx::EVENT_START, $listener);
+        $this->assertArrayHasKey($streamCtx::EVENT_PROGRESS, $listener);
+        $this->assertArrayHasKey($streamCtx::EVENT_FINISH, $listener);
+
+        $this->assertEquals([$closureStart], $listener[$streamCtx::EVENT_START]);
+        $this->assertEquals([$closureProgress], $listener[$streamCtx::EVENT_PROGRESS]);
+        $this->assertEquals([$closureFinish], $listener[$streamCtx::EVENT_FINISH]);
+
+        $streamCtx->off($streamCtx::EVENT_START, $closureStart);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$streamCtx::EVENT_START]);
+
+        $streamCtx->off($streamCtx::EVENT_PROGRESS, $closureProgress);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$streamCtx::EVENT_PROGRESS]);
+
+        $streamCtx->off($streamCtx::EVENT_FINISH, $closureFinish);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$streamCtx::EVENT_FINISH]);
     }
 }

@@ -57,5 +57,4 @@ class Streaming extends Curl implements Streamable
             curl_setopt($ch, CURLOPT_BUFFERSIZE, $this->bufferSize);
         }
     }
-
 }

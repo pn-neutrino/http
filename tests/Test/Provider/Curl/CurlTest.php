@@ -2,6 +2,7 @@
 
 namespace Test\Provider\Curl;
 
+use Neutrino\Http\Event\Emitter;
 use Neutrino\Http\Provider\Curl;
 use Neutrino\Http\Standard\Method;
 use Test\Provider\TestCase;
@@ -165,5 +166,85 @@ class CurlTest extends TestCase
         $options = $curl->getOptions();
         $this->assertArrayHasKey(CURLOPT_COOKIE, $options);
         $this->assertEquals(implode(';', ['biscuit', 'muffin']), $options[CURLOPT_COOKIE]);
+    }
+
+    public function testSetTimeout()
+    {
+        $curl = new Curl();
+
+        $curl->setTimeout(10);
+
+        $options = $curl->getOptions();
+
+        $this->assertArrayHasKey(CURLOPT_TIMEOUT, $options);
+        $this->assertEquals(10, $options[CURLOPT_TIMEOUT]);
+    }
+    public function testSetConnectTimeout()
+    {
+        $curl = new Curl();
+
+        $curl->setConnectTimeout(10);
+
+        $options = $curl->getOptions();
+
+        $this->assertArrayHasKey(CURLOPT_CONNECTTIMEOUT, $options);
+        $this->assertEquals(10, $options[CURLOPT_CONNECTTIMEOUT]);
+    }
+
+
+    public function testOnOff()
+    {
+        $streamingReflectionClass = new \ReflectionClass(Curl\Streaming::class);
+        $emitterProperty = $streamingReflectionClass->getProperty('emitter');
+        $emitterProperty->setAccessible(true);
+
+        $curl = new Curl\Streaming();
+
+        $watcher = [];
+
+        $closureStart    = function () use (&$watcher) {
+            $watcher[] = 'start';
+        };
+        $closureProgress = function () use (&$watcher) {
+            $watcher[] = 'progress';
+        };
+        $closureFinish   = function () use (&$watcher) {
+            $watcher[] = 'finish';
+        };
+
+        $curl->on($curl::EVENT_START, $closureStart);
+        $curl->on($curl::EVENT_PROGRESS, $closureProgress);
+        $curl->on($curl::EVENT_FINISH, $closureFinish);
+
+        $emitter = $emitterProperty->getValue($curl);
+
+
+        $emitterReflectionClass = new \ReflectionClass(Emitter::class);
+        $listenerProperty = $emitterReflectionClass->getProperty('listeners');
+        $listenerProperty->setAccessible(true);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertArrayHasKey($curl::EVENT_START, $listener);
+        $this->assertArrayHasKey($curl::EVENT_PROGRESS, $listener);
+        $this->assertArrayHasKey($curl::EVENT_FINISH, $listener);
+
+        $this->assertEquals([$closureStart], $listener[$curl::EVENT_START]);
+        $this->assertEquals([$closureProgress], $listener[$curl::EVENT_PROGRESS]);
+        $this->assertEquals([$closureFinish], $listener[$curl::EVENT_FINISH]);
+
+        $curl->off($curl::EVENT_START, $closureStart);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$curl::EVENT_START]);
+
+        $curl->off($curl::EVENT_PROGRESS, $closureProgress);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$curl::EVENT_PROGRESS]);
+
+        $curl->off($curl::EVENT_FINISH, $closureFinish);
+        $listener = $listenerProperty->getValue($emitter);
+
+        $this->assertEquals([], $listener[$curl::EVENT_FINISH]);
     }
 }

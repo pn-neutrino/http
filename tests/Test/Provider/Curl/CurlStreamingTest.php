@@ -50,7 +50,7 @@ class CurlStreamingTest extends TestCase
 
                 $whatcher['memory_progress'] = memory_get_usage();
 
-                if($whatcher['memory_progress'] > $whatcher['memory_start']){
+                if ($whatcher['memory_progress'] > $whatcher['memory_start']) {
                     $delta = $whatcher['memory_progress'] - $whatcher['memory_start'];
                     if ($delta / $whatcher['memory_start'] > 0.05) {
                         throw new \Exception("Memory Leak in progress");
@@ -63,7 +63,7 @@ class CurlStreamingTest extends TestCase
                 }
 
                 $whatcher[Curl\Streaming::EVENT_FINISH] = true;
-                $whatcher['memory_finish'] = memory_get_usage();
+                $whatcher['memory_finish']              = memory_get_usage();
             })
             ->call();
 
@@ -82,11 +82,22 @@ class CurlStreamingTest extends TestCase
 
         $this->assertGreaterThanOrEqual($response->header->get('Content-Length'), $whatcher[Curl\Streaming::EVENT_PROGRESS]['length']);
 
-        if($whatcher['memory_finish'] > $whatcher['memory_start']){
+        if ($whatcher['memory_finish'] > $whatcher['memory_start']) {
             $delta = $whatcher['memory_finish'] - $whatcher['memory_start'];
             if ($delta / $whatcher['memory_start'] > 0.05) {
                 throw new \Exception("Memory Leak in progress");
             }
         }
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Neutrino\Http\Provider\Curl\Streaming only support start, progress, finish
+     */
+    public function testTryRegisterWrongEvent()
+    {
+        $curlStream = new Curl\Streaming();
+
+        $curlStream->on('test', function (){});
     }
 }

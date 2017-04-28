@@ -56,7 +56,7 @@ trait Streamize
             return;
         }
 
-        throw new \RuntimeException(__METHOD__ . ' only support ' . implode(', ',
+        throw new \RuntimeException(static::class . ' only support ' . implode(', ',
                 [
                     Streamable::EVENT_START,
                     Streamable::EVENT_PROGRESS,
