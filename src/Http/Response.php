@@ -2,7 +2,7 @@
 
 namespace Neutrino\Http;
 
-use Neutrino\Http\Parser\Parserize;
+use Neutrino\Http\Contract\Parser\Parserize;
 
 /**
  * Class Response

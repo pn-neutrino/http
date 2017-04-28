@@ -2,6 +2,8 @@
 
 namespace Neutrino\Http\Parser;
 
+use Neutrino\Http\Contract\Parser\Parserize;
+
 class Xml implements Parserize
 {
     public function parse($raw)

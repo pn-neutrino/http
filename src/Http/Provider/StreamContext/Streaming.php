@@ -2,9 +2,9 @@
 
 namespace Neutrino\Http\Provider\StreamContext;
 
+use Neutrino\Http\Contract\Streaming\Streamable;
+use Neutrino\Http\Contract\Streaming\Streamize;
 use Neutrino\Http\Provider\StreamContext;
-use Neutrino\Http\Provider\Streaming\Streamable;
-use Neutrino\Http\Provider\Streaming\Streamize;
 
 class Streaming extends StreamContext implements Streamable
 {

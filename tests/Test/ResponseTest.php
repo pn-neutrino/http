@@ -2,8 +2,8 @@
 
 namespace Test;
 
+use Neutrino\Http\Contract\Parser\Parserize;
 use Neutrino\Http\Parser\Json;
-use Neutrino\Http\Parser\Parserize;
 use Neutrino\Http\Response;
 use PHPUnit\Framework\TestCase;
 
@@ -70,7 +70,7 @@ class ResponseTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Neutrino\Http\Response::parse: $parserize must implement Neutrino\Http\Parser\Parserize
+     * @expectedExceptionMessage Neutrino\Http\Response::parse: $parserize must implement Neutrino\Http\Contract\Parser\Parserize
      */
     public function testParseException()
     {

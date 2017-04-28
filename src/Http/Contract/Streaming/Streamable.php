@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: xlzi590
- * Date: 27/04/2017
- * Time: 11:46
- */
 
-namespace Neutrino\Http\Provider\Streaming;
-
+namespace Neutrino\Http\Contract\Streaming;
 
 interface Streamable
 {

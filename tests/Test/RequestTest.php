@@ -2,6 +2,7 @@
 
 namespace Test;
 
+use Neutrino\Http\Auth;
 use Neutrino\Http\Request;
 use Neutrino\Http\Standard\Method;
 use Neutrino\Http\Uri;
@@ -88,13 +89,9 @@ class RequestTest extends TestCase
     {
         $request = new FakeRequest();
 
-        $request->setAuth('basic', 'user', 'pass');
+        $request->setAuth(new Auth\Basic('user', 'pass'));
 
-        $this->assertEquals([
-            'type' => 'basic',
-            'user' => 'user',
-            'pass' => 'pass'
-        ], $request->getAuth());
+        $this->assertEquals(new Auth\Basic('user', 'pass'), $request->getAuth());
 
         $reflectionClass = new \ReflectionClass(FakeRequest::class);
 

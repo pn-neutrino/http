@@ -1,7 +1,6 @@
 <?php
 
-namespace Neutrino\Http\Parser;
-
+namespace Neutrino\Http\Contract\Parser;
 
 interface Parserize
 {

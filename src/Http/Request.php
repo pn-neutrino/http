@@ -2,6 +2,8 @@
 
 namespace Neutrino\Http;
 
+use Neutrino\Http\Contract\Request\Component;
+
 abstract class Request
 {
     /*
@@ -43,11 +45,11 @@ abstract class Request
     protected $proxy = [];
 
     /**
-     * Authentification (basic)
+     * Authentification
      *
-     * @var array
+     * @var Component
      */
-    protected $auth = [];
+    protected $auth;
 
     /**
      * Cookies de la requete
@@ -313,7 +315,7 @@ abstract class Request
     /**
      * Retourne les informations d'authentification
      *
-     * @return array
+     * @return Component|null
      */
     public function getAuth()
     {
@@ -323,19 +325,13 @@ abstract class Request
     /**
      * Definie les informations d'authentification
      *
-     * @param string $type
-     * @param string $user
-     * @param string $pass
+     * @param \Neutrino\Http\Contract\Request\Component $authComponent
      *
      * @return $this
      */
-    public function setAuth($type, $user, $pass)
+    public function setAuth(Component $authComponent)
     {
-        $this->auth = [
-            'type' => $type,
-            'user' => $user,
-            'pass' => $pass,
-        ];
+        $this->auth = $authComponent;
 
         return $this;
     }
@@ -343,24 +339,12 @@ abstract class Request
     /**
      * Construit les informations d'authentification de la requete
      *
-     * Auth type:
-     * - BASIC : Ajout le header 'Authorization'
-     * - secretkeyv2 : Ajout le cookie contenant le hmac d'authentification
-     *
      * @return $this
      */
     protected function buildAuth()
     {
-        $auth = $this->auth;
-
-        if (isset($auth['type'])) {
-            switch ($auth['type']) {
-                case 'basic':
-                    $this->setHeader('Authorization', 'Basic ' . base64_encode($auth['user'] . ':' . $auth['pass']));
-                    break;
-                default:
-                    // TODO
-            }
+        if (isset($this->auth)) {
+            $this->auth->build($this);
         }
 
         return $this;
