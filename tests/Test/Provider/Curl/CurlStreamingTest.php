@@ -100,4 +100,19 @@ class CurlStreamingTest extends TestCase
 
         $curlStream->on('test', function (){});
     }
+
+    public function testSetBufferSize()
+    {
+        $curlReflectionClass = new \ReflectionClass(Curl\Streaming::class);
+        $bufferSizeProperty = $curlReflectionClass->getProperty('bufferSize');
+        $bufferSizeProperty->setAccessible(true);
+
+        $curlStream = new Curl\Streaming();
+
+        $curlStream->setBufferSize(2048);
+
+        $bufferSize = $bufferSizeProperty->getValue($curlStream);
+
+        $this->assertEquals(2048, $bufferSize);
+    }
 }
