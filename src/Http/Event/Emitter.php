@@ -8,7 +8,7 @@ class Emitter
     protected $listeners = [];
 
     /**
-     * @param string            $event
+     * @param string $event
      * @param callable $closure
      *
      * @return bool
@@ -21,7 +21,7 @@ class Emitter
     }
 
     /**
-     * @param string   $event
+     * @param string $event
      * @param callable $closure
      *
      * @return bool
@@ -43,9 +43,19 @@ class Emitter
         return false;
     }
 
+    public function clear($event)
+    {
+        if (isset($this->listeners[$event])) {
+            unset($this->listeners[$event]);
+
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @param string $event
-     * @param array  $arguments
+     * @param array $arguments
      *
      * @return $this
      */
