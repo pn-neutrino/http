@@ -333,7 +333,7 @@ class RequestTest extends TestCase
     {
         $request = new _Fake\FakeRequest();
 
-        $request->call();
+        $request->send();
 
         $this->assertEquals([
             'buildParams',

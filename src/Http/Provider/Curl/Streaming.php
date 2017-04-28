@@ -36,9 +36,9 @@ class Streaming extends Curl implements Streamable
         return $length;
     }
 
-    public function call()
+    public function send()
     {
-        parent::call();
+        parent::send();
 
         $this->emitter->fire(self::EVENT_FINISH, [$this]);
     }

@@ -149,7 +149,7 @@ class Curl extends Request
             $this->response->error     = curl_error($ch);
         }
 
-        $this->response->curlInfos = curl_getinfo($ch);
+        $this->response->providerDatas = curl_getinfo($ch);
     }
 
     /**

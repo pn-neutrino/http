@@ -19,6 +19,8 @@ class Streaming extends StreamContext implements Streamable
 
             $this->streamContextParseHeader($http_response_header);
 
+            $this->response->providerDatas = stream_get_meta_data($handler);
+
             $emitter->fire(self::EVENT_START, [$this]);
 
             $buffer = $this->bufferSize ? $this->bufferSize : 4096;
@@ -26,6 +28,8 @@ class Streaming extends StreamContext implements Streamable
             while (!feof($handler)) {
                 $emitter->fire(self::EVENT_PROGRESS, [$this, stream_get_contents($handler, $buffer)]);
             }
+
+            $this->response->providerDatas = stream_get_meta_data($handler);
 
             $emitter->fire(self::EVENT_FINISH, [$this]);
 

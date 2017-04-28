@@ -64,7 +64,7 @@ class CurlTest extends TestCase
             ->setUri('http://127.0.0.1:8000' . $url)
             ->setProxy('', null, null)// Force Remove proxy
             ->setParams($params)
-            ->call();
+            ->send();
 
         $response = $curl->response;
 
@@ -92,7 +92,7 @@ class CurlTest extends TestCase
                 ->setMethod('GET')
                 ->setUri('http://invalid domain')
                 ->setProxy('', null, null)// Force Remove proxy
-                ->call();
+                ->send();
 
         } catch (\Neutrino\Http\Provider\Exception $e) {
             $this->assertFalse($e);

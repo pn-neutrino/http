@@ -448,7 +448,7 @@ abstract class Request
     /**
      * @return \Neutrino\Http\Response
      */
-    public function call()
+    public function send()
     {
         $this
             ->buildParams()

@@ -66,7 +66,7 @@ class CurlStreamingTest extends TestCase
                 $whatcher[Curl\Streaming::EVENT_FINISH] = true;
                 $whatcher['memory_finish']              = memory_get_usage();
             })
-            ->call();
+            ->send();
 
         $response = $curlStream->response;
 

@@ -74,7 +74,7 @@ class StreamContextTest extends TestCase
             ->setJsonRequest($json)
             ->setUri('http://127.0.0.1:8000' . $url)
             ->setParams($params)
-            ->call();
+            ->send();
 
         $response = $curl->response;
 
@@ -102,7 +102,7 @@ class StreamContextTest extends TestCase
                 ->setMethod('GET')
                 ->setUri('http://invalid domain')
                 ->setProxy('', null, null)// Force Remove proxy
-                ->call();
+                ->send();
 
         } catch (\Neutrino\Http\Provider\Exception $e) {
             $this->assertFalse($e);

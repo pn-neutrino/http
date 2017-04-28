@@ -28,7 +28,7 @@ class Response
     public $error;
 
     /** @var mixed */
-    public $curlInfos;
+    public $providerDatas;
 
     /**
      * Response constructor.

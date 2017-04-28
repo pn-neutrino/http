@@ -67,7 +67,7 @@ class StreamContextStreamingTest extends TestCase
                 $whatcher[StreamContext\Streaming::EVENT_FINISH] = true;
                 $whatcher['memory_finish']                       = memory_get_usage();
             })
-            ->call();
+            ->send();
 
         $response = $streamCtxStreaming->response;
 
