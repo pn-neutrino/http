@@ -258,7 +258,7 @@ class StreamContextTest extends TestCase
             ])],
             'POST nr' => [Method::POST, '/', false, '{"header_send":{"Connection":"close","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
             'POST fr' => [Method::POST, '/', true, implode("\r\n", [
-                'HTTP/1.1 200 OK' .
+                'HTTP/1.1 200 OK',
                 'Host: 127.0.0.1:8000',
                 'Connection: close',
                 'X-Powered-By: PHP/' . $phpVersion,
@@ -280,13 +280,20 @@ class StreamContextTest extends TestCase
      */
     public function testFullResponse($method, $url, $fullResponse, $expected)
     {
-        $curl = new StreamContext();
+        $streamContext = new StreamContext();
 
-        $response = $curl
+        $response = $streamContext
             ->request($method, 'http://127.0.0.1:8000' . $url, [], ['full' => $fullResponse])
             ->send();
 
-        $this->assertEquals($expected, $response->body);
+        $body = $response->body;
+
+        if ($fullResponse) {
+            $this->assertGreaterThan(0, preg_match('/Date: .+\r\n/', $body));
+            $body = preg_replace('/Date: .+\r\n/', '', $body);
+        }
+
+        $this->assertEquals($expected, $body);
     }
 
     /**
