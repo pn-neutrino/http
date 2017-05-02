@@ -251,26 +251,30 @@ class CurlTest extends TestCase
         $phpVersion = explode('-', PHP_VERSION)[0];
 
         return [
-            'GET nr' => [Method::GET, '/', false, '{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}'],
-            'GET fr' => [Method::GET, '/', true, 'HTTP/1.1 200 OK
-Host: 127.0.0.1:8000
-Connection: close
-X-Powered-By: PHP/'. $phpVersion. '
-Status-Code: 200 OK
-Request-Method: GET
-Content-type: text/html; charset=UTF-8
-
-{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}'],
+            'GET nr'  => [Method::GET, '/', false, '{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}'],
+            'GET fr'  => [Method::GET, '/', true, implode("\r\n", [
+                'HTTP/1.1 200 OK',
+                'Host: 127.0.0.1:8000',
+                'Connection: close',
+                'X-Powered-By: PHP/' . $phpVersion,
+                'Status-Code: 200 OK',
+                'Request-Method: GET',
+                'Content-type: text/html; charset=UTF-8',
+                '',
+                '{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}',
+            ])],
             'POST nr' => [Method::POST, '/', false, '{"header_send":{"Accept":"*\/*","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
-            'POST fr' => [Method::POST, '/', true, 'HTTP/1.1 200 OK
-Host: 127.0.0.1:8000
-Connection: close
-X-Powered-By: PHP/7.0.11
-Status-Code: 200 OK
-Request-Method: POST
-Content-type: text/html; charset=UTF-8
-
-{"header_send":{"Accept":"*\/*","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
+            'POST fr' => [Method::POST, '/', true, implode("\r\n", [
+                'HTTP/1.1 200 OK' .
+                'Host: 127.0.0.1:8000',
+                'Connection: close',
+                'X-Powered-By: PHP/' . $phpVersion,
+                'Status-Code: 200 OK',
+                'Request-Method: POST',
+                'Content-type: text/html; charset=UTF-8',
+                '',
+                '{"header_send":{"Accept":"*\/*","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}',
+            ])],
         ];
     }
 
