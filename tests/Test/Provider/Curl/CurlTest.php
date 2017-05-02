@@ -296,10 +296,9 @@ class CurlTest extends TestCase
 
         $body = $response->body;
 
-        /*if ($fullResponse) {
-            $this->assertGreaterThan(0, preg_match('/Date: .+\r\n/', $body));
+        if (PHP_VERSION_ID > 70100 && $fullResponse) {
             $body = preg_replace('/Date: .+\r\n/', '', $body);
-        }*/
+        }
 
         $this->assertEquals($expected, $body);
     }
