@@ -3,10 +3,8 @@
 namespace Neutrino\Http\Provider;
 
 use Neutrino\Http\Exception as HttpException;
-use Neutrino\Http\Header;
 use Neutrino\Http\Provider\Exception as ProviderException;
 use Neutrino\Http\Request;
-use Neutrino\Http\Response;
 use Neutrino\Http\Standard\Method;
 
 class Curl extends Request
@@ -104,7 +102,7 @@ class Curl extends Request
                 CURLOPT_RETURNTRANSFER  => true,
                 CURLOPT_FOLLOWLOCATION  => true,
                 CURLOPT_MAXREDIRS       => 20,
-                CURLOPT_HEADER          => false,
+                CURLOPT_HEADER          => $this->fullResponse,
                 CURLOPT_PROTOCOLS       => CURLPROTO_HTTP | CURLPROTO_HTTPS,
                 CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
                 CURLOPT_CONNECTTIMEOUT  => 30,

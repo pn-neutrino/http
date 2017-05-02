@@ -18,12 +18,12 @@ class StreamContextTest extends TestCase
     public function dataCall()
     {
         return [
-            "GET 200" => self::makeDataCall(Method::GET, 200),
-            "HEAD 200" => self::makeDataCall(Method::HEAD, 200),
+            "GET 200"    => self::makeDataCall(Method::GET, 200),
+            "HEAD 200"   => self::makeDataCall(Method::HEAD, 200),
             "DELETE 200" => self::makeDataCall(Method::DELETE, 200),
-            "POST 200" => self::makeDataCall(Method::POST, 200),
-            "PUT 200" => self::makeDataCall(Method::PUT, 200),
-            "PATCH 200" => self::makeDataCall(Method::PATCH, 200),
+            "POST 200"   => self::makeDataCall(Method::POST, 200),
+            "PUT 200"    => self::makeDataCall(Method::PUT, 200),
+            "PATCH 200"  => self::makeDataCall(Method::PATCH, 200),
 
             "GET 300" => self::makeDataCall(Method::GET, 300),
             "GET 400" => self::makeDataCall(Method::GET, 400),
@@ -32,14 +32,14 @@ class StreamContextTest extends TestCase
 
             "GET 200'Success'" => self::makeDataCall(Method::GET, 200, 'Success'),
 
-            "GET 200 query" => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
-            "HEAD 200 query" => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
+            "GET 200 query"    => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
+            "HEAD 200 query"   => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
             "DELETE 200 query" => self::makeDataCall(Method::DELETE, 200, null, ['query' => 'test']),
-            "POST 200 query" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
-            "PUT 200 query" => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
-            "PATCH 200 query" => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
+            "POST 200 query"   => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
+            "PUT 200 query"    => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
+            "PATCH 200 query"  => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
 
-            "GET 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
+            "GET 200 json"  => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
             "POST 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
         ];
     }
@@ -59,10 +59,6 @@ class StreamContextTest extends TestCase
 
             $jsonBody['header_send']['Connection'] = 'close';
 
-            if (isset($jsonBody['header_send']['Content-Length']) && $jsonBody['header_send']['Content-Length'] == '0') {
-                unset($jsonBody['header_send']['Content-Length']);
-            }
-
             ksort($jsonBody['header_send']);
             $expected['body'] = json_encode($jsonBody);
         }
@@ -74,7 +70,7 @@ class StreamContextTest extends TestCase
             ->setJsonRequest($json)
             ->send();
 
-        $response = $streamCtx->response;
+        $response = $streamCtx->getResponse();
 
         $this->assertEquals($response->code, $response->header->code);
         $this->assertEquals($expected['code'], $response->code);
@@ -105,11 +101,11 @@ class StreamContextTest extends TestCase
         } catch (\Neutrino\Http\Provider\Exception $e) {
             $this->assertFalse($e);
         } catch (\Neutrino\Http\Exception $e) {
-            $this->assertEquals(null, $curl->response->code);
-            $this->assertEquals(null, $curl->response->body);
-            $this->assertEquals(null, $curl->response->data);
-            $this->assertEquals($e->getMessage(), $curl->response->error);
-            $this->assertEquals($e->getCode(), $curl->response->errorCode);
+            $this->assertEquals(null, $curl->getResponse()->code);
+            $this->assertEquals(null, $curl->getResponse()->body);
+            $this->assertEquals(null, $curl->getResponse()->data);
+            $this->assertEquals($e->getMessage(), $curl->getResponse()->error);
+            $this->assertEquals($e->getCode(), $curl->getResponse()->errorCode);
 
             throw $e;
         }
@@ -241,6 +237,62 @@ class StreamContextTest extends TestCase
         $listener = $listenerProperty->getValue($emitter);
 
         $this->assertEquals([], $listener[$streamCtx::EVENT_FINISH]);
+    }
+
+    public function dataFullResponse()
+    {
+        $phpVersion = explode('-', PHP_VERSION)[0];
+
+        return [
+            'GET nr'  => [Method::GET, '/', false, '{"header_send":{"Connection":"close","Host":"127.0.0.1:8000"},"query":[]}'],
+            'GET fr'  => [Method::GET, '/', true, implode("\r\n", [
+                'HTTP/1.1 200 OK',
+                'Host: 127.0.0.1:8000',
+                'Connection: close',
+                'X-Powered-By: PHP/' . $phpVersion,
+                'Status-Code: 200 OK',
+                'Request-Method: GET',
+                'Content-type: text/html; charset=UTF-8',
+                '',
+                '{"header_send":{"Connection":"close","Host":"127.0.0.1:8000"},"query":[]}',
+            ])],
+            'POST nr' => [Method::POST, '/', false, '{"header_send":{"Connection":"close","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
+            'POST fr' => [Method::POST, '/', true, implode("\r\n", [
+                'HTTP/1.1 200 OK',
+                'Host: 127.0.0.1:8000',
+                'Connection: close',
+                'X-Powered-By: PHP/' . $phpVersion,
+                'Status-Code: 200 OK',
+                'Request-Method: POST',
+                'Content-type: text/html; charset=UTF-8',
+                '',
+                '{"header_send":{"Connection":"close","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}',
+            ])],
+        ];
+    }
+
+    /**
+     * @dataProvider dataFullResponse
+     *
+     * @param $method
+     * @param $url
+     * @param $fullResponse
+     */
+    public function testFullResponse($method, $url, $fullResponse, $expected)
+    {
+        $streamContext = new StreamContext();
+
+        $response = $streamContext
+            ->request($method, 'http://127.0.0.1:8000' . $url, [], ['full' => $fullResponse])
+            ->send();
+
+        $body = $response->body;
+
+        if (PHP_VERSION_ID > 70100 && $fullResponse) {
+            $body = preg_replace('/Date: .+\r\n/', '', $body);
+        }
+
+        $this->assertEquals($expected, $body);
     }
 
     /**

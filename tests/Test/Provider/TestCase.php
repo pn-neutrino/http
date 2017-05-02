@@ -31,7 +31,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             'Host'   => '127.0.0.1:8000',
         ];
 
-        if ($method === Method::POST || $method === Method::PATCH || $method === Method::PUT) {
+        if (($method === Method::POST || $method === Method::PATCH || $method === Method::PUT)) {
             $header_send['Content-Type']   = $json ? 'application/json' : 'application/x-www-form-urlencoded';
             $header_send['Content-Length'] = '' . strlen($json ? json_encode($params) : http_build_query($params));
         }
