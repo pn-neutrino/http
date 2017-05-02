@@ -18,12 +18,12 @@ class StreamContextTest extends TestCase
     public function dataCall()
     {
         return [
-            "GET 200" => self::makeDataCall(Method::GET, 200),
-            "HEAD 200" => self::makeDataCall(Method::HEAD, 200),
+            "GET 200"    => self::makeDataCall(Method::GET, 200),
+            "HEAD 200"   => self::makeDataCall(Method::HEAD, 200),
             "DELETE 200" => self::makeDataCall(Method::DELETE, 200),
-            "POST 200" => self::makeDataCall(Method::POST, 200),
-            "PUT 200" => self::makeDataCall(Method::PUT, 200),
-            "PATCH 200" => self::makeDataCall(Method::PATCH, 200),
+            "POST 200"   => self::makeDataCall(Method::POST, 200),
+            "PUT 200"    => self::makeDataCall(Method::PUT, 200),
+            "PATCH 200"  => self::makeDataCall(Method::PATCH, 200),
 
             "GET 300" => self::makeDataCall(Method::GET, 300),
             "GET 400" => self::makeDataCall(Method::GET, 400),
@@ -32,14 +32,14 @@ class StreamContextTest extends TestCase
 
             "GET 200'Success'" => self::makeDataCall(Method::GET, 200, 'Success'),
 
-            "GET 200 query" => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
-            "HEAD 200 query" => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
+            "GET 200 query"    => self::makeDataCall(Method::GET, 200, null, ['query' => 'test']),
+            "HEAD 200 query"   => self::makeDataCall(Method::HEAD, 200, null, ['query' => 'test']),
             "DELETE 200 query" => self::makeDataCall(Method::DELETE, 200, null, ['query' => 'test']),
-            "POST 200 query" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
-            "PUT 200 query" => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
-            "PATCH 200 query" => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
+            "POST 200 query"   => self::makeDataCall(Method::POST, 200, null, ['query' => 'test']),
+            "PUT 200 query"    => self::makeDataCall(Method::PUT, 200, null, ['query' => 'test']),
+            "PATCH 200 query"  => self::makeDataCall(Method::PATCH, 200, null, ['query' => 'test']),
 
-            "GET 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
+            "GET 200 json"  => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
             "POST 200 json" => self::makeDataCall(Method::POST, 200, null, ['query' => 'test'], true),
         ];
     }
@@ -241,12 +241,14 @@ class StreamContextTest extends TestCase
 
     public function dataFullResponse()
     {
+        $phpVersion = explode('-', PHP_VERSION)[0];
+
         return [
-            'GET nr' => [Method::GET, '/', false, '{"header_send":{"Connection":"close","Host":"127.0.0.1:8000"},"query":[]}'],
-            'GET fr' => [Method::GET, '/', true, 'HTTP/1.1 200 OK
+            'GET nr'  => [Method::GET, '/', false, '{"header_send":{"Connection":"close","Host":"127.0.0.1:8000"},"query":[]}'],
+            'GET fr'  => [Method::GET, '/', true, 'HTTP/1.1 200 OK
 Host: 127.0.0.1:8000
 Connection: close
-X-Powered-By: PHP/7.0.11
+X-Powered-By: PHP/' . $phpVersion . '
 Status-Code: 200 OK
 Request-Method: GET
 Content-type: text/html; charset=UTF-8
