@@ -4,6 +4,33 @@ Neutrino : Http Client component
 
 Http Client library using Curl or HttpStream.
 
+# Basic 
+```php
+$provider->get($url, $parameters, $options);
+$provider->post($url, $parameters, $options);
+$provider->delete($url, $parameters, $options);
+$provider->put($url, $parameters, $options);
+$provider->head($url, $parameters, $options);
+$provider->patch($url, $parameters, $options);
+
+$provider->request($method, $url, $parameters, $options);
+```
+
+`$url` Contain the url to call. 
+`$parameters` Contain the parameters to send.
+`$options` Contain the options of the request.
+
+```php
+$options = [
+    // Headers to send
+    'headers' => [],
+    // Retrieve the full response (Header + Body)
+    'full' => true,
+    // Make a JsonRequest (Only for POST, PUT, PATCH methods)
+    'json' => true,
+];
+```
+
 # Provider
 
 ## Curl
@@ -51,8 +78,8 @@ Transfer huge data, without overloading the php memory :
 $curl
     ->get('http://www.google.com')
     ->on(HttpCurlStream::EVENT_START, function (HttpCurlStream $curl) {
-        if ($curl->response->header->has('Content-Length')) {
-            header('Content-Length: ' . $curl->response->header->get('Content-Length'));
+        if ($curl->getResponse()->header->has('Content-Length')) {
+            header('Content-Length: ' . $curl->getResponse()->header->get('Content-Length'));
         }
     })
     ->on(HttpCurlStream::EVENT_PROGRESS, function (HttpCurlStream $curl, $content) {
@@ -91,7 +118,7 @@ use \Neutrino\Http\Method;
 $streamCtx = new HttpStreamCtx;
 
 $response = $streamCtx
-    ->get('http://www.google.com', ['foo' => 'bar'], ['Accept' => 'text/plain'])
+    ->get('http://www.google.com', ['foo' => 'bar'], ['headers' => ['Accept' => 'text/plain']])
     ->send();
   
 $response->code; // HTTP Status Code
