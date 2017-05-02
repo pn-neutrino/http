@@ -74,7 +74,7 @@ class StreamContextTest extends TestCase
             ->setJsonRequest($json)
             ->send();
 
-        $response = $streamCtx->response;
+        $response = $streamCtx->getResponse();
 
         $this->assertEquals($response->code, $response->header->code);
         $this->assertEquals($expected['code'], $response->code);
@@ -105,11 +105,11 @@ class StreamContextTest extends TestCase
         } catch (\Neutrino\Http\Provider\Exception $e) {
             $this->assertFalse($e);
         } catch (\Neutrino\Http\Exception $e) {
-            $this->assertEquals(null, $curl->response->code);
-            $this->assertEquals(null, $curl->response->body);
-            $this->assertEquals(null, $curl->response->data);
-            $this->assertEquals($e->getMessage(), $curl->response->error);
-            $this->assertEquals($e->getCode(), $curl->response->errorCode);
+            $this->assertEquals(null, $curl->getResponse()->code);
+            $this->assertEquals(null, $curl->getResponse()->body);
+            $this->assertEquals(null, $curl->getResponse()->data);
+            $this->assertEquals($e->getMessage(), $curl->getResponse()->error);
+            $this->assertEquals($e->getCode(), $curl->getResponse()->errorCode);
 
             throw $e;
         }

@@ -3,7 +3,6 @@
 namespace Test\Provider\Curl;
 
 use Neutrino\Http\Provider\Curl;
-use Neutrino\Http\Standard\Method;
 use Test\Provider\TestCase;
 
 /**
@@ -29,9 +28,9 @@ class CurlStreamingTest extends TestCase
                 }
 
                 $whatcher[Curl\Streaming::EVENT_START] = [
-                    'code'    => $curlStream->response->code,
-                    'status'  => $curlStream->response->header->status,
-                    'headers' => $curlStream->response->header->getHeaders(),
+                    'code'    => $curlStream->getResponse()->code,
+                    'status'  => $curlStream->getResponse()->header->status,
+                    'headers' => $curlStream->getResponse()->header->getHeaders(),
                 ];
 
                 $whatcher['memory_start'] = memory_get_usage();
@@ -66,7 +65,7 @@ class CurlStreamingTest extends TestCase
             })
             ->send();
 
-        $response = $curlStream->response;
+        $response = $curlStream->getResponse();
 
         $this->assertArrayHasKey(Curl\Streaming::EVENT_START, $whatcher);
         $this->assertArrayHasKey(Curl\Streaming::EVENT_PROGRESS, $whatcher);

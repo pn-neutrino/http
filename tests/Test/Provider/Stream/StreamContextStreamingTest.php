@@ -4,7 +4,6 @@ namespace Test\Provider\Curl;
 
 use Neutrino\Http\Provider\Curl;
 use Neutrino\Http\Provider\StreamContext;
-use Neutrino\Http\Standard\Method;
 use Test\Provider\TestCase;
 
 /**
@@ -29,9 +28,9 @@ class StreamContextStreamingTest extends TestCase
                 }
 
                 $whatcher[StreamContext\Streaming::EVENT_START] = [
-                    'code'    => $streamCtxStreaming->response->code,
-                    'status'  => $streamCtxStreaming->response->header->status,
-                    'headers' => $streamCtxStreaming->response->header->getHeaders(),
+                    'code'    => $streamCtxStreaming->getResponse()->code,
+                    'status'  => $streamCtxStreaming->getResponse()->header->status,
+                    'headers' => $streamCtxStreaming->getResponse()->header->getHeaders(),
                 ];
 
                 $whatcher['memory_start'] = memory_get_peak_usage();
@@ -67,7 +66,7 @@ class StreamContextStreamingTest extends TestCase
             })
             ->send();
 
-        $response = $streamCtxStreaming->response;
+        $response = $streamCtxStreaming->getResponse();
 
         $this->assertArrayHasKey(StreamContext\Streaming::EVENT_START, $whatcher);
         $this->assertArrayHasKey(StreamContext\Streaming::EVENT_PROGRESS, $whatcher);

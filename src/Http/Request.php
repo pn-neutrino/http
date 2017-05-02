@@ -73,11 +73,14 @@ abstract class Request
      */
     protected $jsonRequest = false;
 
+    /** @var bool */
+    protected $fullResponse = false;
+
     /*
      | Response
      */
     /** @var \Neutrino\Http\Response */
-    public $response;
+    protected $response;
 
     /**
      * Request constructor.
@@ -87,6 +90,14 @@ abstract class Request
     public function __construct(Header $header = null)
     {
         $this->header = new Header();
+    }
+
+    /**
+     * @return Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /**
@@ -178,6 +189,25 @@ abstract class Request
     }
 
     /**
+     * @return bool
+     */
+    public function isFullResponse()
+    {
+        return $this->fullResponse;
+    }
+
+    /**
+     * @param bool $fullResponse
+     * @return Request
+     */
+    public function setFullResponse($fullResponse)
+    {
+        $this->fullResponse = $fullResponse;
+
+        return $this;
+    }
+
+    /**
      * Retourne les parametres de la requete
      *
      * @return array
@@ -252,6 +282,14 @@ abstract class Request
     }
 
     /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->header->getHeaders();
+    }
+
+    /**
      * Definie, ou ajoute, des headers à la requete
      *
      * @param array $headers
@@ -303,8 +341,8 @@ abstract class Request
     public function setProxy($host, $port = 8080, $access = null)
     {
         $this->proxy = [
-            'host' => $host,
-            'port' => $port,
+            'host'   => $host,
+            'port'   => $port,
             'access' => $access,
         ];
 
@@ -467,11 +505,11 @@ abstract class Request
      * @param string $method
      * @param string $uri
      * @param array $params
-     * @param array $headers
+     * @param array $options
      *
      * @return $this
      */
-    public function request($method, $uri, array $params = [], array $headers = [])
+    public function request($method, $uri, array $params = [], array $options = [])
     {
         $this
             ->setMethod($method)
@@ -480,8 +518,14 @@ abstract class Request
         if (!empty($params)) {
             $this->setParams($params, true);
         }
-        if (!empty($headers)) {
-            $this->setHeaders($headers, true);
+        if (!empty($options['headers'])) {
+            $this->setHeaders($options['headers'], true);
+        }
+        if (isset($options['full'])) {
+            $this->setFullResponse($options['full']);
+        }
+        if (isset($options['json'])) {
+            $this->setJsonRequest($options['json']);
         }
 
         return $this;
@@ -490,76 +534,73 @@ abstract class Request
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
+     * @param array $options
      *
      * @return $this
      */
-    public function get($uri, array $params = [], array $headers = [])
+    public function get($uri, array $params = [], array $options = [])
     {
-        return $this->request(Method::GET, $uri, $params, $headers);
+        return $this->request(Method::GET, $uri, $params, $options);
     }
 
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
+     * @param array $options
      *
      * @return $this
      */
-    public function head($uri, array $params = [], array $headers = [])
+    public function head($uri, array $params = [], array $options = [])
     {
-        return $this->request(Method::HEAD, $uri, $params, $headers);
+        return $this->request(Method::HEAD, $uri, $params, $options);
     }
 
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
+     * @param array $options
      *
      * @return $this
      */
-    public function delete($uri, array $params = [], array $headers = [])
+    public function delete($uri, array $params = [], array $options = [])
     {
-        return $this->request(Method::DELETE, $uri, $params, $headers);
+        return $this->request(Method::DELETE, $uri, $params, $options);
     }
 
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
-     * @param bool $json
+     * @param array $options
      *
      * @return $this
      */
-    public function post($uri, array $params = [], array $headers = [], $json = false)
+    public function post($uri, array $params = [], array $options)
     {
-        return $this->request(Method::POST, $uri, $params, $headers)->setJsonRequest($json);
+        return $this->request(Method::POST, $uri, $params, $options);
     }
 
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
-     * @param bool $json
+     * @param array $options
      *
      * @return $this
      */
-    public function put($uri, array $params = [], array $headers = [], $json = false)
+    public function put($uri, array $params = [], $options)
     {
-        return $this->request(Method::PUT, $uri, $params, $headers)->setJsonRequest($json);
+        return $this->request(Method::PUT, $uri, $params, $options);
     }
 
     /**
      * @param string $uri
      * @param array $params
-     * @param array $headers
-     * @param bool $json
+     * @param array $options
      *
      * @return $this
      */
-    public function patch($uri, array $params = [], array $headers = [], $json = false)
+    public function patch($uri, array $params = [], $options)
     {
-        return $this->request(Method::PATCH, $uri, $params, $headers)->setJsonRequest($json);
+        return $this->request(Method::PATCH, $uri, $params, $options);
     }
 
     /**

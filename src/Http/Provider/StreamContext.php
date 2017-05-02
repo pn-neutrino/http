@@ -50,7 +50,7 @@ class StreamContext extends Request
      */
     protected function errorHandler($errno, $errstr)
     {
-        $this->response->error     = $errstr;
+        $this->response->error = $errstr;
         $this->response->errorCode = $errno;
 
         throw new HttpException($errstr, $errno);
@@ -94,7 +94,7 @@ class StreamContext extends Request
 
             $this->streamContextParseHeader($http_response_header);
 
-            return $content;
+            return ($this->fullResponse ? $http_response_header : '') . $content;
         }
 
         try {
@@ -162,7 +162,7 @@ class StreamContext extends Request
             $uri = new Uri([
                 'scheme' => 'tcp',
                 'host'   => $this->proxy['host'],
-                'port'   => isset($this->proxy['port']) ? $this->proxy['port'] : 80
+                'port'   => isset($this->proxy['port']) ? $this->proxy['port'] : 80,
             ]);
 
             if (isset($this->proxy['access'])) {

@@ -362,25 +362,20 @@ class RequestTest extends TestCase
      */
     public function testRequest($method, $url, $params, $headers, $expectedUri)
     {
-        $reflectionClass = new \ReflectionClass(_Fake\FakeRequest::class);
-
-        $headerProperty = $reflectionClass->getProperty('header');
-        $headerProperty->setAccessible(true);
-
         $request = new _Fake\FakeRequest();
 
-        $this->assertEquals($request, $request->{strtolower($method)}($url, $params, $headers));
+        $this->assertEquals($request, $request->{strtolower($method)}($url, $params, ['headers' => $headers]));
 
         $this->assertEquals($method, $request->getMethod());
         $this->assertEquals($expectedUri, $request->getUri()->build());
         $this->assertEquals($params, $request->getParams());
-        $this->assertEquals($headers, $headerProperty->getValue($request)->getHeaders());
+        $this->assertEquals($headers, $request->getHeaders());
 
         $this->assertEquals($request, $request->request($method, $url, $params, $headers));
 
         $this->assertEquals($method, $request->getMethod());
         $this->assertEquals($expectedUri, $request->getUri()->build());
         $this->assertEquals($params, $request->getParams());
-        $this->assertEquals($headers, $headerProperty->getValue($request)->getHeaders());
+        $this->assertEquals($headers, $request->getHeaders());
     }
 }
