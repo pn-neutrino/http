@@ -94,7 +94,7 @@ class StreamContext extends Request
 
             $this->streamContextParseHeader($http_response_header);
 
-            return ($this->fullResponse ? $http_response_header : '') . $content;
+            return ($this->fullResponse ? implode("\r\n", $http_response_header) . "\r\n\r\n" : '') . $content;
         }
 
         try {
@@ -124,19 +124,21 @@ class StreamContext extends Request
      */
     protected function buildParams()
     {
-        if ($this->isPostMethod()) {
-            if ($this->isJsonRequest()) {
+            if ($this->isPostMethod()) {
+                if ($this->isJsonRequest()) {
+                    return $this
+                        ->setOption('content', $params = json_encode($this->params))
+                        ->setHeader('Content-Type', 'application/json')
+                        ->setHeader('Content-Length', strlen($params));
+                }
+
                 return $this
-                    ->setHeader('Content-Type', 'application/json')
-                    ->setOption('content', json_encode($this->params));
+                    ->setOption('content', $params = http_build_query($this->params))
+                    ->setHeader('Content-Type', 'application/x-www-form-urlencoded')
+                    ->setHeader('Content-Length', strlen($params));
             }
 
-            return $this
-                ->setHeader('Content-Type', 'application/x-www-form-urlencoded')
-                ->setOption('content', http_build_query($this->params));
-        }
-
-        return $this->buildUrl();
+            return $this->buildUrl();
     }
 
     /**

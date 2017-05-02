@@ -348,34 +348,44 @@ class RequestTest extends TestCase
     public function dataRequest()
     {
         return [
-            [Method::GET, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
-            [Method::HEAD, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
-            [Method::DELETE, '/', ['q' => 'q'], ['Accept' => '*/*'], '/?q=q'],
-            [Method::POST, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
-            [Method::PUT, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
-            [Method::PATCH, '/', ['q' => 'q'], ['Accept' => '*/*'], '/'],
+            [['uri'=>'/?q=q', 'headers' => ['Accept' => '*/*'], 'json' => false, 'full' => false,], Method::GET, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*']]],
+            [['uri'=>'/?q=q', 'headers' => ['Accept' => '*/*'], 'json' => false, 'full' => false,], Method::HEAD, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*'], 'full' => null]],
+            [['uri'=>'/?q=q', 'headers' => ['Accept' => '*/*'], 'json' => false, 'full' => true,], Method::DELETE, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*'], 'full' => true]],
+            [['uri'=>'/', 'headers' => ['Accept' => '*/*'], 'json' => false, 'full' => false,], Method::POST, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*'], 'json' => null, 'full' => null]],
+            [['uri'=>'/', 'headers' => ['Accept' => '*/*'], 'json' => false, 'full' => false,], Method::PUT, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*'], 'json' => false, 'full' => false]],
+            [['uri'=>'/', 'headers' => ['Accept' => '*/*'], 'json' => true, 'full' => true,], Method::PATCH, '/', ['q' => 'q'], ['headers' => ['Accept' => '*/*'], 'json' => true, 'full' => true]],
         ];
     }
 
     /**
      * @dataProvider dataRequest
      */
-    public function testRequest($method, $url, $params, $headers, $expectedUri)
+    public function testRequest($expected, $method, $url, $params, $options)
     {
         $request = new _Fake\FakeRequest();
 
-        $this->assertEquals($request, $request->{strtolower($method)}($url, $params, ['headers' => $headers]));
-
+        $this->assertEquals($request, $request->{strtolower($method)}($url, $params, $options));
         $this->assertEquals($method, $request->getMethod());
-        $this->assertEquals($expectedUri, $request->getUri()->build());
+        $this->assertEquals($expected['uri'], $request->getUri()->build());
         $this->assertEquals($params, $request->getParams());
-        $this->assertEquals($headers, $request->getHeaders());
+        $this->assertEquals($expected['headers'], $request->getHeaders());
+        $this->assertEquals($expected['json'], $request->isJsonRequest());
+        $this->assertEquals($expected['full'], $request->isFullResponse());
 
-        $this->assertEquals($request, $request->request($method, $url, $params, $headers));
-
+        $this->assertEquals($request, $request->request($method, $url, $params, $options));
         $this->assertEquals($method, $request->getMethod());
-        $this->assertEquals($expectedUri, $request->getUri()->build());
+        $this->assertEquals($expected['uri'], $request->getUri()->build());
         $this->assertEquals($params, $request->getParams());
-        $this->assertEquals($headers, $request->getHeaders());
+        $this->assertEquals($expected['headers'], $request->getHeaders());
+        $this->assertEquals($expected['json'], $request->isJsonRequest());
+        $this->assertEquals($expected['full'], $request->isFullResponse());
+
+        $this->assertEquals($request, $request->request($method, $url));
+        $this->assertEquals($method, $request->getMethod());
+        $this->assertEquals($expected['uri'], $request->getUri()->build());
+        $this->assertEquals($params, $request->getParams());
+        $this->assertEquals($expected['headers'], $request->getHeaders());
+        $this->assertEquals($expected['json'], $request->isJsonRequest());
+        $this->assertEquals($expected['full'], $request->isFullResponse());
     }
 }

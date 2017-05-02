@@ -106,7 +106,7 @@ class CurlTest extends TestCase
 
     public function testBuildProxy()
     {
-        $reflectionClass  = new \ReflectionClass(Curl::class);
+        $reflectionClass = new \ReflectionClass(Curl::class);
         $buildProxyMethod = $reflectionClass->getMethod('buildProxy');
         $buildProxyMethod->setAccessible(true);
 
@@ -149,7 +149,7 @@ class CurlTest extends TestCase
 
     public function testBuildCookies()
     {
-        $reflectionClass    = new \ReflectionClass(Curl::class);
+        $reflectionClass = new \ReflectionClass(Curl::class);
         $buildCookiesMethod = $reflectionClass->getMethod('buildCookies');
         $buildCookiesMethod->setAccessible(true);
 
@@ -176,6 +176,7 @@ class CurlTest extends TestCase
         $this->assertArrayHasKey(CURLOPT_TIMEOUT, $options);
         $this->assertEquals(10, $options[CURLOPT_TIMEOUT]);
     }
+
     public function testSetConnectTimeout()
     {
         $curl = new Curl();
@@ -199,13 +200,13 @@ class CurlTest extends TestCase
 
         $watcher = [];
 
-        $closureStart    = function () use (&$watcher) {
+        $closureStart = function () use (&$watcher) {
             $watcher[] = 'start';
         };
         $closureProgress = function () use (&$watcher) {
             $watcher[] = 'progress';
         };
-        $closureFinish   = function () use (&$watcher) {
+        $closureFinish = function () use (&$watcher) {
             $watcher[] = 'finish';
         };
 
@@ -243,6 +244,51 @@ class CurlTest extends TestCase
         $listener = $listenerProperty->getValue($emitter);
 
         $this->assertEquals([], $listener[$curl::EVENT_FINISH]);
+    }
+
+    public function dataFullResponse()
+    {
+        return [
+            'GET nr' => [Method::GET, '/', false, '{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}'],
+            'GET fr' => [Method::GET, '/', true, 'HTTP/1.1 200 OK
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/7.0.11
+Status-Code: 200 OK
+Request-Method: GET
+Content-type: text/html; charset=UTF-8
+
+{"header_send":{"Accept":"*\/*","Host":"127.0.0.1:8000"},"query":[]}'],
+            'POST nr' => [Method::POST, '/', false, '{"header_send":{"Accept":"*\/*","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
+            'POST fr' => [Method::POST, '/', true, 'HTTP/1.1 200 OK
+Host: 127.0.0.1:8000
+Connection: close
+X-Powered-By: PHP/7.0.11
+Status-Code: 200 OK
+Request-Method: POST
+Content-type: text/html; charset=UTF-8
+
+{"header_send":{"Accept":"*\/*","Content-Length":"0","Content-Type":"application\/x-www-form-urlencoded","Host":"127.0.0.1:8000"},"query":[]}'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataFullResponse
+     *
+     * @param $method
+     * @param $url
+     * @param $fullResponse
+     */
+    public function testFullResponse($method, $url, $fullResponse, $expected)
+    {
+        $curl = new Curl();
+
+        $response = $curl
+            ->request($method, 'http://127.0.0.1:8000' . $url, [], ['full' => $fullResponse])
+            ->setProxy('', null, null)// Force Remove proxy
+            ->send();
+
+        $this->assertEquals($expected, $response->body);
     }
 
     /**
